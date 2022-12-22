@@ -41,6 +41,7 @@ library(MASS)
 
 #fuck yeeeaaahhh
 lol <- 2 + 4
+lol <- 20 + 10000
 
 #set seed for random number generator
 seed <- 10
