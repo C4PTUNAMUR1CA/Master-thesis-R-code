@@ -804,6 +804,8 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
         doParallel::registerDoParallel(cl)
         final_expected_utility_buyHold_list <- foreach(iteration=1:nrow(all_allocations)) %dopar% {
           
+          source('vector_myopic_utility_functions.R')
+          
           utility_all_scenarios_buyHold <- vector_myopic_utility_calculation(all_allocations[iteration,],
                                                                              list_cumulativeReturns,gamma)
           #Obtain the across-path mean of the Buy&Hold utilities
@@ -839,6 +841,8 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
         cl <- parallel::makeCluster(detectCores())
         doParallel::registerDoParallel(cl)
         final_expected_utility_buyHold_list <- foreach(iteration=1:nrow(all_allocations_buyHold)) %dopar% {
+          
+          source('vector_myopic_utility_functions.R')
           
           utility_all_scenarios_buyHold <- vector_myopic_utility_calculation(all_allocations_buyHold[iteration,],
                                                                              list_cumulativeReturns,gamma)
