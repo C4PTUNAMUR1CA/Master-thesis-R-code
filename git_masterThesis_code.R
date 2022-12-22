@@ -8,6 +8,8 @@
 # git reset --hard (input_SHA key of previous version)
 # library(usethis)
 # use_github(protocol='https', auth_token = Sys.getenv("GITHUB_PAT"))
+# git config --global user.email "nikita.pavlov.sva@hotmail.com"
+# git clone "clonable URL of repo"
 
 #install packages (if not installed yet) and import packages
 # install.packages('scales')
