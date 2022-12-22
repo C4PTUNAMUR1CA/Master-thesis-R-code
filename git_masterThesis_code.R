@@ -572,6 +572,8 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
           doParallel::registerDoParallel(cl)
           utility_over_allocations_dynamic_list <- foreach(iteration=1:nrow(current_allocation_subset)) %dopar% {
             
+            source("vector_utility_calculation_functions.R")
+            
             utility_all_scenarios_dynamic <- vector_utility_calculation(current_allocation_subset[iteration,],
                                                                         return_var_list,
                                                                         gamma,
@@ -588,12 +590,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
             }
             across_path_df <- as.data.frame(do.call(cbind,across_path_df))
             
-            if (model_type=='OLS'){
-              fitted_utility <- model_fittedValues(model_type,across_path_df)
-            } else {
-              #If using ML models, also specify the optimal hyperparameters to be used for the optimisation
-              fitted_utility <- model_fittedValues(model_type,across_path_df,optimal_hypPar)
-            }
+            fitted_utility <- OLS_fittedValue(across_path_df)
             
             append(fitted_utility,mean(across_path_df$y))
           }
