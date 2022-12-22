@@ -53,3 +53,21 @@ vector_utility_calculation <- function(allocations,return_list,gamma,
   #Returns a vector of utility, with size of the number of scenarios
   return(gamma_adjusted_utility)
 }
+
+OLS_fittedValue <- function(across_path_df){
+  #fits an OLS regression on the dataframe and returns the fitted values
+  
+  across_path_reg <- lm(y~.,data=across_path_df)
+  fitted_values_ols <- across_path_reg$fitted.values
+  
+  return(fitted_values_ols)
+}
+
+U = function(x, gamma) {
+  r = 1 - gamma
+  if (r == 0) {
+    U = log(x)
+  } else {
+    U = (x^r)/r
+  }
+}
