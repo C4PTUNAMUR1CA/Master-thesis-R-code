@@ -37,6 +37,7 @@ library(MASS)
 #fuck yeeeaaahhh
 lol <- 2 + 4
 lol <- lol + 20
+lol <- lol + 10000
 
 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
 
