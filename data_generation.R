@@ -77,6 +77,8 @@ which_complexity = 1
 ESG_constraint <- F
 #what is the ESG threshold you want to apply?
 ESG_threshold <- 40
+#what is the risk preference of the investor, defined by gamma?
+gamma <- 5
 
 #these are the weights vector among the 7 specifications of ESG preferences
 env_weight_list <- c(0.33,0.7,0.1,0.2,1,0,0)
@@ -287,7 +289,6 @@ for (var_name in names(monthly_state_var_list)){
 #save(state_var_train_list,file="C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/state_var_train_list_simple.RData")
 #save(state_var_test_list,file="C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/state_var_test_list_simple.RData")
 
-
 #load the training and testing sets
 load("return_var_train_list_simple.RData")
 load("return_var_test_list_simple.RData")
@@ -296,4 +297,4 @@ load("state_var_test_list_simple.RData")
 
 #======== Section 7: Create the RData file for the numerical model =================
 
-save(file='cluster_0_input.RData')
+save.image(file='cluster_0_input.RData')
