@@ -940,6 +940,7 @@ get_CE <- function(opt_allocation,return_list){
 
 #======== Section 6: Load RData file for specific cluster =================
 
+source('Utility Functions.R')
 load('cluster_0_input.RData')
 
 #======== Section 7: Data cleaning and preparation =================
