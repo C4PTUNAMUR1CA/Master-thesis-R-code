@@ -491,11 +491,11 @@ ESG_restrict_allocations <- function(all_allocations,ESG_scores,ESG_threshold,
 
 find_max <- function(num_col) {
   #This function extracts the maximum 
-  return(max(test_df[,num_col]))
+  return(max(utility_over_allocations_dynamic[,num_col]))
 }
 
 find_max_index <- function(num_col) {
-  return(which(test_df[,num_col]==max(test_df[,num_col]))[1])
+  return(which(utility_over_allocations_dynamic[,num_col]==max(utility_over_allocations_dynamic[,num_col]))[1])
 }
 
 #======== Section 4: Function to obtain optimal allocations, depending on model type and return scenarios =================
@@ -547,7 +547,6 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
       
       #These matrices collect the expected utilities in the final periods, to calculate the across-path mean
       final_expected_utility_dynamic <- matrix(0,nrow=nrow(all_allocations_dynamic),ncol=1)
-      final_expected_utility_buyHold <- matrix(0,nrow=nrow(all_allocations),ncol=1)
       if (period>1){
         
         # Given that the number of allocations are enormous, we have to work with subsets of the full allocation grid
@@ -657,7 +656,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
         }
         
         #Obtains the row index (thus the optimal portfolio allocation) in each scenario, where the maximum fitted utility is found, for each scenario
-        max_finalUtility_rowIndex_dynamic <- apply(final_expected_utility_dynamic,2,function(x) which(x==max(x))[1])
+        max_finalUtility_rowIndex_dynamic <- which(final_expected_utility_dynamic==max(final_expected_utility_dynamic))
         #using the above row indexes, collect the optimal portfolio allocations for each scenario
         #essentially a dataframe/matrix (# of scenarios)x(# of assets) matrix
         final_optimal_allocation_dynamic <- all_allocations_dynamic[max_finalUtility_rowIndex_dynamic,]
@@ -812,6 +811,9 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
         parallel::stopCluster(cl)
         final_expected_utility_buyHold <- unlist(final_expected_utility_buyHold_list)
         
+        #REPEAT HERE TO FIND OPTIMAL ALLOCATION AROUND THE OTHER OPTIMAL
+        all_allocations_buyHold <- generate_next_allocation_grid(allocations_dynamic[period,],0.02,0.04)
+        
         # for (row in 1:nrow(all_allocations)){
         #   #obtain buy&Hold utilities
         #   
@@ -822,9 +824,32 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
         # }
         
         #repeat above steps, but now for the Buy&Hold portfolio allocation optimization
-        max_finalUtility_rowIndex_buyHold <- unlist(mclapply(1:1,find_max_index))
-        final_optimal_allocation_buyHold <- unlist(mclapply(1:1,find_max))
-        final_optimal_allocation_buyHold <- all_allocations[max_finalUtility_rowIndex_buyHold,]
+        max_finalUtility_rowIndex_buyHold <- which(final_expected_utility_buyHold==max(final_expected_utility_buyHold))
+        
+        #REPEAT HERE TO FIND OPTIMAL ALLOCATION AROUND THE OTHER OPTIMAL
+        all_allocations_buyHold <- generate_next_allocation_grid(all_allocations[max_finalUtility_rowIndex_buyHold,],0.02,0.04)
+        
+        #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
+        if (ESG_constraint){
+          all_allocations_buyHold <- ESG_restrict_allocations(all_allocations_buyHold,ESG_scores,ESG_threshold,
+                                                              env_weight,soc_weight,gov_weight)
+        }
+        
+        cl <- parallel::makeCluster(detectCores())
+        doParallel::registerDoParallel(cl)
+        final_expected_utility_buyHold_list <- foreach(iteration=1:nrow(all_allocations_buyHold)) %dopar% {
+          
+          utility_all_scenarios_buyHold <- vector_myopic_utility_calculation(all_allocations_buyHold[iteration,],
+                                                                             list_cumulativeReturns,gamma)
+          #Obtain the across-path mean of the Buy&Hold utilities
+          mean(utility_all_scenarios_buyHold)
+        }
+        parallel::stopCluster(cl)
+        final_expected_utility_buyHold <- unlist(final_expected_utility_buyHold_list)
+        
+        #repeat above steps, but now for the Buy&Hold portfolio allocation optimization
+        max_finalUtility_rowIndex_buyHold <- which(final_expected_utility_buyHold==max(final_expected_utility_buyHold))
+        final_optimal_allocation_buyHold <- all_allocations_buyHold[max_finalUtility_rowIndex_buyHold,]
         row.names(final_optimal_allocation_buyHold) <- NULL
         
         for (asset in assets){
