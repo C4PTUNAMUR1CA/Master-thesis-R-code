@@ -91,7 +91,7 @@ seed <- 10
 obtain_return_variables <- function(excel_file_name){
   #this function obtains the simulated return variables and combines them into a list
   
-  file_location = paste(as.character(excel_file_name),".xlsx",sep='')
+  file_location = paste("C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/",as.character(excel_file_name),".xlsx",sep='')
   
   sheetnames = c( "Tbill return",
                   "Tnote return",
@@ -152,7 +152,7 @@ obtain_return_variables <- function(excel_file_name){
 obtain_state_variables <- function(excel_file_name){
   #this function obtains the simulated state variables and combines them into a list
   
-  file_location = paste(as.character(excel_file_name),".xlsx",sep='')
+  file_location = paste("C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/",as.character(excel_file_name),".xlsx",sep='')
   
   sheetnames = c( "real rate",
                   "yield spread",
@@ -201,8 +201,8 @@ for (i in 0:6){
   final_esg_score_list[[as.character(i)]] <- final_esg_score
 }
  
-monthly_return_var_list <- obtain_return_variables(simulation_file_name)
-monthly_state_var_list <- obtain_state_variables(simulation_file_name)
+#monthly_return_var_list <- obtain_return_variables(simulation_file_name)
+#monthly_state_var_list <- obtain_state_variables(simulation_file_name)
 # save(monthly_return_var_list,file="C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/monthly_return_var_list_simple.RData")
 # save(monthly_state_var_list,file="C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/monthly_state_var_list_simple.RData")
 
@@ -215,8 +215,6 @@ monthly_state_var_list <- obtain_state_variables(simulation_file_name)
 
 return_var_list <- list()
 state_var_list <- list()
-
-max_horizon <- 15
 
 #create the annual returns, by calculating the cumulative returns within a specific year
 for (var_name in names(monthly_return_var_list)){
@@ -266,22 +264,22 @@ for (var_name in names(monthly_state_var_list)){
 
 # generate a training and test split among the 10000 scenarios
 # an 80/20% training/testing split is performed
-training_subset <- sort(sample(nrow(return_var_list$return_variable_1), nrow(return_var_list$return_variable_1)*train_ratio))
-
-return_var_train_list <- list()
-return_var_test_list <- list()
-state_var_train_list <- list()
-state_var_test_list <- list()
-
-for (var_name in names(return_var_list)){
-  return_var_train_list[[var_name]] <- return_var_list[[var_name]][training_subset,]
-  return_var_test_list[[var_name]] <- return_var_list[[var_name]][-training_subset,]
-}
-
-for (var_name in names(state_var_list)){
-  state_var_train_list[[var_name]] <- state_var_list[[var_name]][training_subset,]
-  state_var_test_list[[var_name]] <- state_var_list[[var_name]][-training_subset,]
-}
+# training_subset <- sort(sample(nrow(return_var_list$return_variable_1), nrow(return_var_list$return_variable_1)*train_ratio))
+# 
+# return_var_train_list <- list()
+# return_var_test_list <- list()
+# state_var_train_list <- list()
+# state_var_test_list <- list()
+# 
+# for (var_name in names(return_var_list)){
+#   return_var_train_list[[var_name]] <- return_var_list[[var_name]][training_subset,]
+#   return_var_test_list[[var_name]] <- return_var_list[[var_name]][-training_subset,]
+# }
+# 
+# for (var_name in names(state_var_list)){
+#   state_var_train_list[[var_name]] <- state_var_list[[var_name]][training_subset,]
+#   state_var_test_list[[var_name]] <- state_var_list[[var_name]][-training_subset,]
+# }
 
 #to keep the training and test set the same, we use stored RData files for the above
 #save(return_var_train_list,file="C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/return_var_train_list_simple.RData")
@@ -291,9 +289,11 @@ for (var_name in names(state_var_list)){
 
 
 #load the training and testing sets
-#load("C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/return_var_train_list_simple.RData")
-#load("C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/return_var_test_list_simple.RData")
-#load("C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/state_var_train_list_simple.RData")
-#load("C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/state_var_test_list_simple.RData")
+load("return_var_train_list_simple.RData")
+load("return_var_test_list_simple.RData")
+load("state_var_train_list_simple.RData")
+load("state_var_test_list_simple.RData")
 
 #======== Section 7: Create the RData file for the numerical model =================
+
+save(file='cluster_0_input.RData')
