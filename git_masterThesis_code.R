@@ -501,7 +501,7 @@ find_max_index <- function(num_col) {
 #======== Section 4: Function to obtain optimal allocations, depending on model type and return scenarios =================
 
 get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint,ESG_scores,
-                                   ESG_threshold,env_weight,soc_weight,gov_weight){
+                                   ESG_threshold,env_weight,soc_weight,gov_weight,subset_size){
   #Returns the optimal allocation for a dynamic, myopic and Buy&Hold portfolio
   #But if HyperParm_tuning is True, then it returns the optimal hyperparameters for the ML model, per period
   
@@ -517,7 +517,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
     #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
     if (ESG_constraint){
       all_allocations <- ESG_restrict_allocations(all_allocations,ESG_scores,ESG_threshold,
-                                                  env_weight,soc_weight,gov_weight,subset_size)
+                                                  env_weight,soc_weight,gov_weight)
     }
     
     #Reset the possible allocation for both dynamic and myopic strategy
@@ -550,13 +550,17 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
       if (period>1){
         
         # Given that the number of allocations are enormous, we have to work with subsets of the full allocation grid
-        # This finds how many subsets with 25000 allocations are to be found in the grid, while also finding the number
+        # This finds how many subsets with (subset_size) allocations are to be found in the grid, while also finding the number
         # of allocations in the last subset
         full_subsets <- floor(nrow(all_allocations_dynamic)/subset_size)
         last_subset_size <- nrow(all_allocations_dynamic)%%subset_size
         
         for (subset in 1:(full_subsets+1)){
-          
+          print(paste('Entered subset number ',as.character(subset),sep=''))
+          print(Sys.time())
+          if (subset==2){
+            break
+          }
           if (subset<(full_subsets)){
             current_allocation_subset <- all_allocations_dynamic[(1+subset_size*(subset-1)):(subset_size*(subset)),]
           } else {
@@ -654,7 +658,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
             colnames(current_total_opt_allocation_perScenario_dynamic) <- assets
           }
         }
-        
+        break
         #Obtains the row index (thus the optimal portfolio allocation) in each scenario, where the maximum fitted utility is found, for each scenario
         max_finalUtility_rowIndex_dynamic <- which(final_expected_utility_dynamic==max(final_expected_utility_dynamic))
         #using the above row indexes, collect the optimal portfolio allocations for each scenario
