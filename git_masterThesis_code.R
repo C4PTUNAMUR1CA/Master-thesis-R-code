@@ -42,7 +42,7 @@ library(MASS)
 #fuck yeeeaaahhh
 lol <- 2 + 4
 lol <- 20 + 10000
-lol <- lol + 1000
+lol <- lol + 10001
 
 #set seed for random number generator
 seed <- 10
