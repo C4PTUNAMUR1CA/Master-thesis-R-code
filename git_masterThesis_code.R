@@ -893,7 +893,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
                                                             env_weight,soc_weight,gov_weight)
       }
     }
-    
+    break
     #Store the optimal allocations over all periods for the specific gamma in the list 
     allocations_dynamic_horizons[[horizon]] <- as.data.frame(allocations_dynamic)
     allocations_BuyHold_horizons[[horizon]] <- as.data.frame(allocations_buyHold)
