@@ -396,7 +396,7 @@ limit_allocations <- function(all_allocations,current_allocation){
   
   return(all_allocations)
 }
-allocation_test <- generate_next_allocation_grid(matrix(c(0.1,0.2,0.3,0,0,0,0,0.1,0,0.1,0.2),nrow=1,ncol=11),0.02,0.04)
+
 generate_next_allocation_grid <- function(current_allocation,increment_value,width_length){
   #This function generated a new allocation grid
   #Inputs:
@@ -465,7 +465,7 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,wid
   
   return(all_allocations)
 }
-
+#allocation_test <- generate_next_allocation_grid(matrix(c(0.1,0.2,0.3,0,0,0,0,0.1,0,0.1,0.2),nrow=1,ncol=11),0.02,0.04)
 ESG_restrict_allocations <- function(all_allocations,ESG_scores,ESG_threshold,
                                      env_weight,soc_weight,gov_weight){
   #Returns the remaining possible allocations, by considering that the equity portfolio should adhere to the ESG threshold score
@@ -517,7 +517,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
     #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
     if (ESG_constraint){
       all_allocations <- ESG_restrict_allocations(all_allocations,ESG_scores,ESG_threshold,
-                                                  env_weight,soc_weight,gov_weight)
+                                                  env_weight,soc_weight,gov_weight,subset_size)
     }
     
     #Reset the possible allocation for both dynamic and myopic strategy
@@ -553,15 +553,15 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
         # Given that the number of allocations are enormous, we have to work with subsets of the full allocation grid
         # This finds how many subsets with 25000 allocations are to be found in the grid, while also finding the number
         # of allocations in the last subset
-        full_subsets <- floor(nrow(all_allocations_dynamic)/50000)
-        last_subset_size <- nrow(all_allocations_dynamic)%%50000
+        full_subsets <- floor(nrow(all_allocations_dynamic)/subset_size)
+        last_subset_size <- nrow(all_allocations_dynamic)%%subset_size
         
         for (subset in 1:(full_subsets+1)){
           
           if (subset<(full_subsets)){
-            current_allocation_subset <- all_allocations_dynamic[(1+50000*(subset-1)):(50000*(subset)),]
+            current_allocation_subset <- all_allocations_dynamic[(1+subset_size*(subset-1)):(subset_size*(subset)),]
           } else {
-            current_allocation_subset <- all_allocations_dynamic[(1+50000*(subset-1)):(nrow(all_allocations_dynamic)),]
+            current_allocation_subset <- all_allocations_dynamic[(1+subset_size*(subset-1)):(nrow(all_allocations_dynamic)),]
           }
           rownames(current_allocation_subset) <- NULL
           
@@ -598,9 +598,9 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
           utility_over_allocations_dynamic_list <- do.call(rbind,x)
           
           if (subset<(full_subsets)){
-            final_expected_utility_dynamic[((1+50000*(subset-1)):(50000*(subset))),1] <- utility_over_allocations_dynamic_list[,ncol(utility_over_allocations_dynamic_list)]
+            final_expected_utility_dynamic[((1+subset_size*(subset-1)):(subset_size*(subset))),1] <- utility_over_allocations_dynamic_list[,ncol(utility_over_allocations_dynamic_list)]
           } else {
-            final_expected_utility_dynamic[((1+50000*(subset-1)):(nrow(all_allocations_dynamic))),1] <- utility_over_allocations_dynamic_list[,ncol(utility_over_allocations_dynamic_list)]
+            final_expected_utility_dynamic[((1+subset_size*(subset-1)):(nrow(all_allocations_dynamic))),1] <- utility_over_allocations_dynamic_list[,ncol(utility_over_allocations_dynamic_list)]
           }
           
           utility_over_allocations_dynamic <- utility_over_allocations_dynamic_list[,(1:(ncol(utility_over_allocations_dynamic_list)-1))]
@@ -1036,10 +1036,10 @@ total_Allocation_count <- nrow(all_allocations)
 #Run the optimisation over the base case dataset
 if (hyperParm_tuning){
   optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                    ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1])
+                                                    ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],10000)
 } else {
   optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1])
+                                                ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],10000)
   print('CE of above allocation is:')
   print(get_CE(optimal_allocation_horizons[[1]],return_var_test_list))
 }
