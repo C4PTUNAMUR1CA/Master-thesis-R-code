@@ -4,6 +4,11 @@
 ##  Subject: allocation optimisation, hyperparameter tuning and complexity script
 ###########################################################################
 
+#saved github commands for the terminal
+# git reset --hard (input_SHA key of previous version)
+# library(usethis)
+# use_github(protocol='https', auth_token = Sys.getenv("GITHUB_PAT"))
+
 #install packages (if not installed yet) and import packages
 # install.packages('scales')
 # install.packages('dplyr')
@@ -36,10 +41,6 @@ library(MASS)
 
 #fuck yeeeaaahhh
 lol <- 2 + 4
-lol <- lol + 20
-lol <- lol + 10000
-
-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
 
 #set seed for random number generator
 seed <- 10
