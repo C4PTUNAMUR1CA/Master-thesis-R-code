@@ -40,6 +40,7 @@ library(writexl)
 library(doParallel)
 library(parallel)
 library(MASS)
+library(VecUtilityCalculations)
 
 #======== Section 1: functions for hyperparameter tuning of ML models  ===============
 
@@ -568,6 +569,12 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
           }
           rownames(current_allocation_subset) <- NULL
           
+          utility_all_scenarios_dynamic <- vector_utility_calculation(current_allocation_subset[1,],
+                                                                      return_var_list,
+                                                                      gamma,
+                                                                      period,(current_max_horizon),
+                                                                      period_list)
+          return(utility_all_scenarios_dynamic)
           cl <- parallel::makeCluster(detectCores())
           doParallel::registerDoParallel(cl)
           utility_over_allocations_dynamic_list <- foreach(iteration=1:nrow(current_allocation_subset)) %dopar% {
