@@ -568,13 +568,8 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
             current_allocation_subset <- all_allocations_dynamic[(1+subset_size*(subset-1)):(nrow(all_allocations_dynamic)),]
           }
           rownames(current_allocation_subset) <- NULL
+          #return(current_allocation_subset)
           
-          utility_all_scenarios_dynamic <- testPack2::vector_utility_calculation(current_allocation_subset[1,],
-                                                                      return_var_list,
-                                                                      gamma,
-                                                                      period,(current_max_horizon),
-                                                                      period_list)
-          return(utility_all_scenarios_dynamic)
           cl <- parallel::makeCluster(detectCores())
           doParallel::registerDoParallel(cl)
           utility_over_allocations_dynamic_list <- foreach(iteration=1:nrow(current_allocation_subset),.packages='testPack2') %dopar% {
@@ -584,23 +579,24 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
                                                                         gamma,
                                                                         period,(current_max_horizon),
                                                                         period_list)
-            
+            utility_all_scenarios_dynamic
             across_path_df <- list()
             across_path_df[['y']] <- utility_all_scenarios_dynamic
-            
+
             for (state_var in names(state_var_list)){
               #Create state variables
               current_state_var <- state_var_list[[state_var]][,(period-1)]
               across_path_df[[state_var]] <- current_state_var
             }
             across_path_df <- as.data.frame(do.call(cbind,across_path_df))
-            
+            colnames(across_path_df)[1] <- 'y'
             fitted_utility <- OLS_fittedValue(across_path_df)
-            
+
             append(fitted_utility,mean(across_path_df$y))
           }
           parallel::stopCluster(cl)
-          utility_over_allocations_dynamic_list <- do.call(rbind,x)
+          
+          utility_over_allocations_dynamic_list <- do.call(rbind,utility_over_allocations_dynamic_list)
           
           if (subset<(full_subsets)){
             final_expected_utility_dynamic[((1+subset_size*(subset-1)):(subset_size*(subset))),1] <- utility_over_allocations_dynamic_list[,ncol(utility_over_allocations_dynamic_list)]
@@ -1068,13 +1064,13 @@ total_Allocation_count <- nrow(all_allocations)
 #Run the optimisation over the base case dataset
 if (hyperParm_tuning){
   optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                    ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],10000)
+                                                    ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],50000)
 } else {
   optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],10000)
+                                                ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],50000)
   print('CE of above allocation is:')
   print(get_CE(optimal_allocation_horizons[[1]],return_var_test_list))
 }
-
+optimal_allocations[[1]]
 #Export in a RData file type to Documents
 save(optimal_allocations,file='C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/optimal_allocations.RData')
