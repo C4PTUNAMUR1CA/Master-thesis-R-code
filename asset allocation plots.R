@@ -1,7 +1,11 @@
+#load packages
+
 library(ggplot2)
 library(dplyr)
 
-load("optimal_allocation_per_gamma_dynamic_OLS.RData")
+#=============== Section 1: load all asset allocations ========
+
+#=============== Section 2: load graph functions ========
 
 allocations_graphs <- function(allocations,horizons){
   
