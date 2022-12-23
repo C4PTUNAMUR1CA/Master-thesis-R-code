@@ -466,7 +466,7 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,wid
   
   return(all_allocations)
 }
-#allocation_test <- generate_next_allocation_grid(matrix(c(0.1,0.2,0.3,0,0,0,0,0.1,0,0.1,0.2),nrow=1,ncol=11),0.02,0.04)
+#allocation_test <- generate_next_allocation_grid(matrix(c(0.1,0.2,0.3,0,0,0,0,0.1,0,0.1,0.2),nrow=1,ncol=11),0.04,0.04)
 ESG_restrict_allocations <- function(all_allocations,ESG_scores,ESG_threshold,
                                      env_weight,soc_weight,gov_weight){
   #Returns the remaining possible allocations, by considering that the equity portfolio should adhere to the ESG threshold score
@@ -814,7 +814,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
         final_expected_utility_buyHold <- unlist(final_expected_utility_buyHold_list)
         
         #REPEAT HERE TO FIND OPTIMAL ALLOCATION AROUND THE OTHER OPTIMAL
-        all_allocations_buyHold <- generate_next_allocation_grid(allocations_dynamic[period,],0.02,0.04)
+        all_allocations_buyHold <- generate_next_allocation_grid(allocations_dynamic[period,],0.04,0.04)
         
         # for (row in 1:nrow(all_allocations)){
         #   #obtain buy&Hold utilities
