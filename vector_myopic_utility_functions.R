@@ -12,7 +12,8 @@ vector_myopic_utility_calculation <- function(allocations,return_list,gamma){
     wealth <- wealth + allocations[1,col_num]*return_list[[var]][,period]
     col_num <- col_num + 1
   }
-  power_utility <- U(wealth,gamma)
+  power_utility <- apply(wealth,1,U)
+    U(wealth,gamma)
   
   return(power_utility)
 }
