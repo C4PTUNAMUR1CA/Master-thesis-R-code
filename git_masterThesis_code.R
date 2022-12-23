@@ -466,7 +466,7 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,wid
   
   return(all_allocations)
 }
-allocation_test <- generate_next_allocation_grid(matrix(c(0.1,0.2,0.3,0,0,0,0,0.1,0,0.1,0.2),nrow=1,ncol=11),0.02,0.04)
+#allocation_test <- generate_next_allocation_grid(matrix(c(0.1,0.2,0.3,0,0,0,0,0.1,0,0.1,0.2),nrow=1,ncol=11),0.02,0.04)
 ESG_restrict_allocations <- function(all_allocations,ESG_scores,ESG_threshold,
                                      env_weight,soc_weight,gov_weight){
   #Returns the remaining possible allocations, by considering that the equity portfolio should adhere to the ESG threshold score
@@ -1069,8 +1069,8 @@ if (hyperParm_tuning){
   optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,ESG_constraint,final_esg_score_list[[as.character(0)]],
                                                 ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],10000)
   print('CE of above allocation is:')
-  print(get_CE(optimal_allocation_horizons[[1]],return_var_test_list))
+  print(get_CE(optimal_allocations[[1]],return_var_test_list))
 }
-optimal_allocations[[1]]
+
 #Export in a RData file type to Documents
 save(optimal_allocations,file='C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/optimal_allocations.RData')
