@@ -39,6 +39,38 @@ get_terminal_wealth_perScenario <- function(opt_allocation,return_list,max_horiz
   return(wealth[,max_horizon+1])
 }
 
+get_turnover <- function(opt_allocation,return_list,max_horizon){
+  
+  Nscenarios <- nrow(return_list[[1]])
+  
+  total_turnover <- matrix(0,Nscenarios, 1)
+  for (t in 1:(max_horizon)){
+    num_col <- 1
+    portfolio_return <- matrix(0,nrow=Nscenarios,ncol=1)
+    for(var in names(return_list)){
+      portfolio_return[,1] <- portfolio_return[,1] + return_list[[var]][,t]*opt_allocation[t,num_col]
+      num_col <- num_col + 1
+    }
+    
+    num_col <- 1
+    weighted_return <- matrix(0,nrow=Nscenarios,ncol=length(names(return_list)))
+    rebalanced_weight <- matrix(0,nrow=Nscenarios,ncol=length(names(return_list)))
+    turnover_perAsset <- matrix(0,nrow=Nscenarios,ncol=length(names(return_list)))
+    turnover_forPeriod <- matrix(0,nrow=Nscenarios,ncol=1)
+    for(var in names(return_list)){
+      weighted_return[,num_col] <- return_list[[var]][,t]/portfolio_return[,1]
+      rebalanced_weight[,num_col] <- opt_allocation[t,num_col]*weighted_return[,num_col]
+      turnover_perAsset[,num_col] <- abs(rebalanced_weight[,num_col] - opt_allocation[t,num_col])
+      num_col <- num_col + 1
+    }
+    turnover_forPeriod[,1] <- apply(turnover_perAsset,1,sum)
+    total_turnover[,1] <- total_turnover[,1] + turnover_forPeriod[,1]
+  }
+  total_turnover[,1] <- total_turnover[,1]/max_horizon
+  mean_turnover_across_scenarios <- mean(total_turnover)
+  return(mean_turnover_across_scenarios)
+}
+
 get_wealth_perScenario <- function(opt_allocation,return_list,max_horizon){
   
   Nscenarios <- nrow(return_list[[1]])
@@ -105,6 +137,11 @@ for (horizon in 1:15){
   CE_oneOverNFair_horizons[horizon,1] <- get_CE(oneOverN_allocation_equityFair[1:horizon,],return_test_set,horizon)
   if (horizon==15){
     wealthPerScenario_oneOverNFair <- get_wealth_perScenario(oneOverN_allocation_equityFair[1:horizon,],return_test_set,horizon)
+    mean_terminal_wealth_oneOverNFair <- mean(get_terminal_wealth_perScenario(oneOverN_allocation_equityFair[1:horizon,],return_test_set,horizon))
+    stdev_terminal_wealth_oneOverNFair <- sd(get_terminal_wealth_perScenario(oneOverN_allocation_equityFair[1:horizon,],return_test_set,horizon))
+    SR_oneOverNFair <- mean_terminal_wealth_oneOverNFair/stdev_terminal_wealth_oneOverNFair
+    hist(get_terminal_wealth_perScenario(oneOverN_allocation_equityFair[1:horizon,],return_test_set,horizon))
+    turnover_oneOverNFair <- get_turnover(oneOverN_allocation_equityFair[1:horizon,],return_test_set,horizon)
   }
 }
 
@@ -121,6 +158,10 @@ for (horizon in 1:15){
   CE_oneOverN_horizons[horizon,1] <- get_CE(oneOverN_allocation[1:horizon,],return_test_set,horizon)
   if (horizon==15){
     wealthPerScenario_oneOverN <- get_wealth_perScenario(oneOverN_allocation[1:horizon,],return_test_set,horizon)
+    mean_terminal_wealth_oneOverN <- mean(get_terminal_wealth_perScenario(oneOverN_allocation[1:horizon,],return_test_set,horizon))
+    stdev_terminal_wealth_oneOverN <- sd(get_terminal_wealth_perScenario(oneOverN_allocation[1:horizon,],return_test_set,horizon))
+    hist(get_terminal_wealth_perScenario(oneOverN_allocation[1:horizon,],return_test_set,horizon))
+    turnover_oneOverN <- get_turnover(oneOverN_allocation[1:horizon,],return_test_set,horizon)
   }
 }
 
