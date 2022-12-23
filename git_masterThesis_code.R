@@ -40,7 +40,7 @@ library(writexl)
 library(doParallel)
 library(parallel)
 library(MASS)
-library(VecUtilityCalculations)
+library(testPack2)
 
 #======== Section 1: functions for hyperparameter tuning of ML models  ===============
 
@@ -569,7 +569,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
           }
           rownames(current_allocation_subset) <- NULL
           
-          utility_all_scenarios_dynamic <- vector_utility_calculation(current_allocation_subset[1,],
+          utility_all_scenarios_dynamic <- testPack2::vector_utility_calculation(current_allocation_subset[1,],
                                                                       return_var_list,
                                                                       gamma,
                                                                       period,(current_max_horizon),
@@ -577,9 +577,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
           return(utility_all_scenarios_dynamic)
           cl <- parallel::makeCluster(detectCores())
           doParallel::registerDoParallel(cl)
-          utility_over_allocations_dynamic_list <- foreach(iteration=1:nrow(current_allocation_subset)) %dopar% {
-            
-            source("vector_utility_calculation_functions.R")
+          utility_over_allocations_dynamic_list <- foreach(iteration=1:nrow(current_allocation_subset),.packages='testPack2') %dopar% {
             
             utility_all_scenarios_dynamic <- vector_utility_calculation(current_allocation_subset[iteration,],
                                                                         return_var_list,
@@ -809,9 +807,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
         #As the Buy&Hold strategy is only determined at starting_age
         cl <- parallel::makeCluster(detectCores())
         doParallel::registerDoParallel(cl)
-        final_expected_utility_buyHold_list <- foreach(iteration=1:nrow(all_allocations)) %dopar% {
-          
-          source('vector_myopic_utility_functions.R')
+        final_expected_utility_buyHold_list <- foreach(iteration=1:nrow(all_allocations),.packages='testPack2') %dopar% {
           
           utility_all_scenarios_buyHold <- vector_myopic_utility_calculation(all_allocations[iteration,],
                                                                              list_cumulativeReturns,gamma)
@@ -847,9 +843,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
         
         cl <- parallel::makeCluster(detectCores())
         doParallel::registerDoParallel(cl)
-        final_expected_utility_buyHold_list <- foreach(iteration=1:nrow(all_allocations_buyHold)) %dopar% {
-          
-          source('vector_myopic_utility_functions.R')
+        final_expected_utility_buyHold_list <- foreach(iteration=1:nrow(all_allocations_buyHold),.packages='testPack2') %dopar% {
           
           utility_all_scenarios_buyHold <- vector_myopic_utility_calculation(all_allocations_buyHold[iteration,],
                                                                              list_cumulativeReturns,gamma)
