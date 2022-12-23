@@ -1064,10 +1064,10 @@ total_Allocation_count <- nrow(all_allocations)
 #Run the optimisation over the base case dataset
 if (hyperParm_tuning){
   optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                    ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],50000)
+                                                    ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],10000)
 } else {
   optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],50000)
+                                                ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],10000)
   print('CE of above allocation is:')
   print(get_CE(optimal_allocation_horizons[[1]],return_var_test_list))
 }
