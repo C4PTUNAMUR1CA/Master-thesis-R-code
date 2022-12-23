@@ -466,7 +466,7 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,wid
   
   return(all_allocations)
 }
-#allocation_test <- generate_next_allocation_grid(matrix(c(0.1,0.2,0.3,0,0,0,0,0.1,0,0.1,0.2),nrow=1,ncol=11),0.02,0.04)
+allocation_test <- generate_next_allocation_grid(matrix(c(0.1,0.2,0.3,0,0,0,0,0.1,0,0.1,0.2),nrow=1,ncol=11),0.02,0.04)
 ESG_restrict_allocations <- function(all_allocations,ESG_scores,ESG_threshold,
                                      env_weight,soc_weight,gov_weight){
   #Returns the remaining possible allocations, by considering that the equity portfolio should adhere to the ESG threshold score
@@ -512,7 +512,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
   allocations_BuyHold_horizons <- list()
   
   #loop over all horizons, to find the optimal asset allocation per forecasting horizon
-  for (horizon in 1:max_horizon){
+  for (horizon in 2:max_horizon){
     print(paste('horizon_',horizon,sep=''))
     
     #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
