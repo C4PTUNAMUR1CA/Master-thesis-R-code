@@ -1,7 +1,11 @@
 #load packages
-
+#install.packages("fanplot")
+#install.packages("ggfan")
 library(ggplot2)
+library(magrittr)
+library(tidyr)
 library(dplyr)
+library(ggfan)
 
 #=============== Section 1: load all asset allocations ========
 
@@ -75,6 +79,18 @@ CE_plot <- function(CE_over_horizons){
     scale_color_manual(values=c("red", "blue", "green"))
 }
 
+wealth_uncertainty_plot <- function(wealthPerScenario){
+  
+  wealth_graph <- data.frame(Horizon=1:ncol(wealthPerScenario),t(wealthPerScenario)) %>% gather(key = Sim,value=y,-Horizon)
+  
+  ggplot(wealth_graph, aes(x=Horizon,y=y)) + 
+    geom_fan() + 
+    labs(y= "Accumulated Wealth", x = "Horizon") +
+    theme_bw() + 
+    scale_fill_distiller(palette="Spectral") +
+    scale_x_continuous(breaks = c(3,6,9,12,15))
+}
+
 #=============== Section 3: 1 over N allocation, with equal weight across asset classes ========
 
 bond_allocations <- as.data.frame(matrix(round(1/4,2),nrow=15,ncol=3))
@@ -92,6 +108,8 @@ for (horizon in 1:15){
   }
 }
 
+wealth_uncertainty_plot(wealthPerScenario_oneOverNFair)
+
 #=============== Section 4: 1 over N allocation, with equal weight across all assets ========
 
 oneOverN_allocation <- as.data.frame(matrix(round(1/length(assets),2),nrow=15,ncol=11))
@@ -106,7 +124,13 @@ for (horizon in 1:15){
   }
 }
 
-#=============== Section 5: Create CE plot with all asset allocations ========
+wealth_uncertainty_plot(wealthPerScenario_oneOverN)
+
+#=============== Section 5: Add other asset allocations ========================
+
+
+
+#=============== Section End: Create CE plot with all asset allocations ========
 
 CE_all <- cbind(CE_oneOverNFair_horizons,CE_oneOverN_horizons)
 
