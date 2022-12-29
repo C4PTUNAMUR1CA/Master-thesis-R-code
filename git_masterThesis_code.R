@@ -559,9 +559,6 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
         for (subset in 1:(full_subsets+1)){
           print(paste('Entered subset number ',as.character(subset),sep=''))
           print(Sys.time())
-          if (subset==2){
-            break
-          }
           if (subset<(full_subsets)){
             current_allocation_subset <- all_allocations_dynamic[(1+subset_size*(subset-1)):(subset_size*(subset)),]
           } else {
@@ -639,7 +636,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
             #the idea is that if for a particular scenario the utility is maximal for the first row index, then choose the first (#assets) columns as the optimal asset allocation
             #if the utility is maximal at the second row index, then choose the second (#assets) columns as the optimal asset allocation
             #Given my non-expertise of R, I do this using an ifelse statement and creating additional (#assets) columns at the end of the matrix
-            current_total_opt_allocation_perScenario_dynamic <- cbind(current_total_opt_allocation_perScenario_dynamic,matrix(0,nrow=scenario_train,ncol=length(assets)))
+            current_total_opt_allocation_perScenario_dynamic <- cbind(current_total_opt_allocation_perScenario_dynamic,matrix(0,nrow=scenarios_train,ncol=length(assets)))
             
             #loop over all the assets and implement the idea of above, using an if else statement, dependent on the max rowIndex column in the matrix
             for (asset in 1:length(assets)){
@@ -656,7 +653,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
             colnames(current_total_opt_allocation_perScenario_dynamic) <- assets
           }
         }
-        break
+        
         #Obtains the row index (thus the optimal portfolio allocation) in each scenario, where the maximum fitted utility is found, for each scenario
         max_finalUtility_rowIndex_dynamic <- which(final_expected_utility_dynamic==max(final_expected_utility_dynamic))
         #using the above row indexes, collect the optimal portfolio allocations for each scenario
@@ -756,7 +753,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
         #     #the idea is that if for a particular scenario the utility is maximal for the first row index, then choose the first (#assets) columns as the optimal asset allocation
         #     #if the utility is maximal at the second row index, then choose the second (#assets) columns as the optimal asset allocation
         #     #Given my non-expertise of R, I do this using an ifelse statement and creating additional (#assets) columns at the end of the matrix
-        #     current_total_opt_allocation_perScenario_dynamic <- cbind(current_total_opt_allocation_perScenario_dynamic,matrix(0,nrow=scenario_train,ncol=length(assets)))
+        #     current_total_opt_allocation_perScenario_dynamic <- cbind(current_total_opt_allocation_perScenario_dynamic,matrix(0,nrow=scenarios_train,ncol=length(assets)))
         #     
         #     #loop over all the assets and implement the idea of above, using an if else statement, dependent on the max rowIndex column in the matrix
         #     for (asset in 1:length(assets)){
@@ -883,7 +880,11 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
       
       #update the possible portfolio allocation grid, by adhering to
       #to the fact that stock allocation can decrease by at most 8% over time
-      all_allocations_dynamic <- generate_next_allocation_grid(allocations_dynamic[period,],0.02,0.04)
+      print('generating new all_allocations_dynamic')
+      print(Sys.time())
+      all_allocations_dynamic <- generate_next_allocation_grid(allocations_dynamic[period,],0.04,0.04)
+      print('Finished generating new all_allocations_dynamic')
+      print(Sys.time())
       
       #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
       if (ESG_constraint){
@@ -891,10 +892,12 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
                                                             env_weight,soc_weight,gov_weight)
       }
     }
-    break
+    
     #Store the optimal allocations over all periods for the specific gamma in the list 
     allocations_dynamic_horizons[[horizon]] <- as.data.frame(allocations_dynamic)
     allocations_BuyHold_horizons[[horizon]] <- as.data.frame(allocations_buyHold)
+    return(allocations_dynamic_horizons)
+    break
   }
   if (hyperParm_tuning){
     return(optimal_hyperparameters)
@@ -1064,10 +1067,10 @@ total_Allocation_count <- nrow(all_allocations)
 #Run the optimisation over the base case dataset
 if (hyperParm_tuning){
   optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                    ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],10000)
+                                                    ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],50000)
 } else {
   optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],10000)
+                                                ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],50000)
   print('CE of above allocation is:')
   print(get_CE(optimal_allocations[[1]],return_var_test_list))
 }
