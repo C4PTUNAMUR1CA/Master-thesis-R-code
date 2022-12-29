@@ -798,6 +798,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
         list_cumulativeReturns <- cumulative_returns(return_var_list,period,(current_max_horizon))
         
         #As the Buy&Hold strategy is only determined at starting_age
+        print('entering buyHold optimal asset allocation')
         cl <- parallel::makeCluster(detectCores())
         doParallel::registerDoParallel(cl)
         final_expected_utility_buyHold_list <- foreach(iteration=1:nrow(all_allocations),.packages='testPack2') %dopar% {
@@ -1063,6 +1064,8 @@ total_Allocation_count <- nrow(all_allocations)
 #load("C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/all_allocations.RData")
 
 #==== Section 10: simulate the optimal allocation, through maximising expected utility for dynamic, myopic and Buy&Hold portfolios
+
+all_allocations <- all_allocations[121736:131735,]
 
 #Run the optimisation over the base case dataset
 if (hyperParm_tuning){
