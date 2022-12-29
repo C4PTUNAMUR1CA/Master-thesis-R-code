@@ -882,6 +882,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
       #update the possible portfolio allocation grid, by adhering to
       #to the fact that stock allocation can decrease by at most 8% over time
       print('generating new all_allocations_dynamic')
+      print(allocations_dynamic[period,])
       print(Sys.time())
       all_allocations_dynamic <- generate_next_allocation_grid(allocations_dynamic[period,],0.04,0.04)
       print('Finished generating new all_allocations_dynamic')
