@@ -407,11 +407,11 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,wid
   
   #Generate here the possible portfolio weights per asset, given its current portfolio weight in current_allocation
   allocations_assets <- list()
-  for (asset in 1:ncol(current_allocation)){
-    if (round(current_allocation[1,asset],2)<=width_length) {
+  for (asset in 1:length(current_allocation)){
+    if (round(current_allocation[asset],2)<=width_length) {
       allocations_assets[[asset]] <- seq(0,(2*width_length),by=increment_value)
-    } else if (round(current_allocation[1,asset],2)<=(1-width_length)){
-      allocations_assets[[asset]] <- seq(current_allocation[1,asset]-width_length,current_allocation[1,asset]+width_length,by=increment_value)
+    } else if (round(current_allocation[asset],2)<=(1-width_length)){
+      allocations_assets[[asset]] <- seq(current_allocation[asset]-width_length,current_allocation[asset]+width_length,by=increment_value)
     } else {
       allocations_assets[[asset]] <- seq((1-(2*width_length)),1,by=increment_value)
     }
@@ -812,6 +812,8 @@ get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint
         final_expected_utility_buyHold <- unlist(final_expected_utility_buyHold_list)
         
         #REPEAT HERE TO FIND OPTIMAL ALLOCATION AROUND THE OTHER OPTIMAL
+        #NOT CORRECT HERE
+        #need to find optimal asset allocation and then find new asset allocation grid
         all_allocations_buyHold <- generate_next_allocation_grid(allocations_dynamic[period,],0.04,0.04)
         
         # for (row in 1:nrow(all_allocations)){
@@ -1066,15 +1068,15 @@ total_Allocation_count <- nrow(all_allocations)
 
 #==== Section 10: simulate the optimal allocation, through maximising expected utility for dynamic, myopic and Buy&Hold portfolios
 
-all_allocations <- all_allocations[121736:131735,]
-
+all_allocations <- all_allocations[121736:(121736+1000),]
+rownames(all_allocations) <- NULL
 #Run the optimisation over the base case dataset
 if (hyperParm_tuning){
   optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                    ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],50000)
+                                                    ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],600)
 } else {
   optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],50000)
+                                                ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],600)
   print('CE of above allocation is:')
   print(get_CE(optimal_allocations[[1]],return_var_test_list))
 }
