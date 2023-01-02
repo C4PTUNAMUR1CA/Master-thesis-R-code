@@ -501,7 +501,7 @@ find_max_index <- function(num_col) {
 
 #======== Section 4: Function to obtain optimal allocations, depending on model type and return scenarios =================
 
-get_optimal_allocation <- function(return_var_list,state_var_list,ESG_constraint,ESG_scores,
+get_optimal_allocation <- function(return_var_list,state_var_list,all_allocations,ESG_constraint,ESG_scores,
                                    ESG_threshold,env_weight,soc_weight,gov_weight,subset_size){
   #Returns the optimal allocation for a dynamic, myopic and Buy&Hold portfolio
   #But if HyperParm_tuning is True, then it returns the optimal hyperparameters for the ML model, per period
@@ -1072,10 +1072,10 @@ all_allocations <- all_allocations[121736:(121736+1000),]
 rownames(all_allocations) <- NULL
 #Run the optimisation over the base case dataset
 if (hyperParm_tuning){
-  optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,ESG_constraint,final_esg_score_list[[as.character(0)]],
+  optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
                                                     ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],600)
 } else {
-  optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,ESG_constraint,final_esg_score_list[[as.character(0)]],
+  optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
                                                 ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],600)
   print('CE of above allocation is:')
   print(get_CE(optimal_allocations[[1]],return_var_test_list))
