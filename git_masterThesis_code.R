@@ -377,7 +377,7 @@ cumulative_returns <- function(return_list,start_period,end_period){
   
   for (var in names(return_list)){
     cum_return_current_var <- t(apply(return_list[[var]][,((start_period):(end_period))],1,cumprod))
-    cumulative_returns_list[[var]] <- cum_return_current_var[,ncol(cum_return_current_var)]
+    cumulative_returns_list[[var]] <- matrix(cum_return_current_var[,ncol(cum_return_current_var)],nrow=nrow(cum_return_current_var),ncol=1)
   }
   
   return(cumulative_returns_list)
@@ -398,6 +398,8 @@ limit_allocations <- function(all_allocations,current_allocation){
   return(all_allocations)
 }
 
+optimal_allocations[1,4]
+
 generate_next_allocation_grid <- function(current_allocation,increment_value,width_length){
   #This function generated a new allocation grid
   #Inputs:
@@ -405,13 +407,15 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,wid
   #increment_value: by what increment the portfolio weights can increase or decrease
   #width_length: the maximum increase or decrease of a particular portfolio weights between two neighboring periods
   
+  #ADD A TRYCATCH FUNCTION HERE
+  
   #Generate here the possible portfolio weights per asset, given its current portfolio weight in current_allocation
   allocations_assets <- list()
   for (asset in 1:length(current_allocation)){
     if (round(current_allocation[asset],2)<=width_length) {
       allocations_assets[[asset]] <- seq(0,(2*width_length),by=increment_value)
     } else if (round(current_allocation[asset],2)<=(1-width_length)){
-      allocations_assets[[asset]] <- seq(current_allocation[asset]-width_length,current_allocation[asset]+width_length,by=increment_value)
+      allocations_assets[[asset]] <- seq(current_allocation[asset]-width_length,current_allocation[,asset]+width_length,by=increment_value)
     } else {
       allocations_assets[[asset]] <- seq((1-(2*width_length)),1,by=increment_value)
     }
@@ -804,33 +808,20 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
         final_expected_utility_buyHold_list <- foreach(iteration=1:nrow(all_allocations),.packages='testPack2') %dopar% {
           
           utility_all_scenarios_buyHold <- vector_myopic_utility_calculation(all_allocations[iteration,],
-                                                                             list_cumulativeReturns,gamma)
-          #Obtain the across-path mean of the Buy&Hold utilities
+                                                                             list_cumulativeReturns)
+          
           mean(utility_all_scenarios_buyHold)
         }
         parallel::stopCluster(cl)
         final_expected_utility_buyHold <- unlist(final_expected_utility_buyHold_list)
-        
-        #REPEAT HERE TO FIND OPTIMAL ALLOCATION AROUND THE OTHER OPTIMAL
-        #NOT CORRECT HERE
-        #need to find optimal asset allocation and then find new asset allocation grid
-        all_allocations_buyHold <- generate_next_allocation_grid(allocations_dynamic[period,],0.04,0.04)
-        
-        # for (row in 1:nrow(all_allocations)){
-        #   #obtain buy&Hold utilities
-        #   
-        #   utility_all_scenarios_buyHold <- vector_myopic_utility_calculation(all_allocations[row,],
-        #                                                                      list_cumulativeReturns,gamma)
-        #   #Obtain the across-path mean of the Buy&Hold utilities
-        #   final_expected_utility_buyHold[row,1] <- mean(utility_all_scenarios_buyHold)
-        # }
+        print('finished buyHold optimal asset allocation')
         
         #repeat above steps, but now for the Buy&Hold portfolio allocation optimization
         max_finalUtility_rowIndex_buyHold <- which(final_expected_utility_buyHold==max(final_expected_utility_buyHold))
-        
-        #REPEAT HERE TO FIND OPTIMAL ALLOCATION AROUND THE OTHER OPTIMAL
-        all_allocations_buyHold <- generate_next_allocation_grid(all_allocations[max_finalUtility_rowIndex_buyHold,],0.02,0.04)
-        
+        #REPEAT HERE TO FIND OPTIMAL ALLOCATION AROUND THE OTHER OPTIMAL ALLOCATION
+        all_allocations_buyHold <- generate_next_allocation_grid(all_allocations[max_finalUtility_rowIndex_buyHold,],0.04,0.04)
+        print('passed check 1')
+        return(all_allocations_buyHold)
         #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
         if (ESG_constraint){
           all_allocations_buyHold <- ESG_restrict_allocations(all_allocations_buyHold,ESG_scores,ESG_threshold,
@@ -842,7 +833,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
         final_expected_utility_buyHold_list <- foreach(iteration=1:nrow(all_allocations_buyHold),.packages='testPack2') %dopar% {
           
           utility_all_scenarios_buyHold <- vector_myopic_utility_calculation(all_allocations_buyHold[iteration,],
-                                                                             list_cumulativeReturns,gamma)
+                                                                             list_cumulativeReturns)
           #Obtain the across-path mean of the Buy&Hold utilities
           mean(utility_all_scenarios_buyHold)
         }
@@ -884,7 +875,6 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
       #update the possible portfolio allocation grid, by adhering to
       #to the fact that stock allocation can decrease by at most 8% over time
       print('generating new all_allocations_dynamic')
-      print(allocations_dynamic[period,])
       print(Sys.time())
       all_allocations_dynamic <- generate_next_allocation_grid(allocations_dynamic[period,],0.04,0.04)
       print('Finished generating new all_allocations_dynamic')
@@ -1080,6 +1070,7 @@ if (hyperParm_tuning){
   print('CE of above allocation is:')
   print(get_CE(optimal_allocations[[1]],return_var_test_list))
 }
+
 
 #Export in a RData file type to Documents
 save(optimal_allocations,file='C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/optimal_allocations.RData')
