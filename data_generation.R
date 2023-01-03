@@ -76,7 +76,7 @@ which_complexity = 1
 #Choose whether you want to ESG-restrict the optimal asset allocation
 ESG_constraint <- F
 #what is the ESG threshold you want to apply?
-ESG_threshold <- 40
+ESG_threshold <- 50
 #what is the risk preference of the investor, defined by gamma?
 gamma <- 5
 
