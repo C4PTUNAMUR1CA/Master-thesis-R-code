@@ -623,6 +623,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
         # Given that the number of allocations are enormous, we have to work with subsets of the full allocation grid
         # This finds how many subsets with (subset_size) allocations are to be found in the grid, while also finding the number
         # of allocations in the last subset
+        print(paste('Grid size is ',nrow(all_allocations_dynamic),sep=''))
         full_subsets <- floor(nrow(all_allocations_dynamic)/subset_size)
         last_subset_size <- nrow(all_allocations_dynamic)%%subset_size
         
@@ -1062,7 +1063,7 @@ get_CE <- function(opt_allocation,return_list){
 source('Utility Functions.R')
 load('cluster_0_input.RData')
 
-ESG_constraint <- T
+ESG_constraint <- F
 
 #======== Section 7: Data cleaning and preparation =================
 
@@ -1180,18 +1181,16 @@ total_Allocation_count <- nrow(all_allocations)
 
 #==== Section 10: simulate the optimal allocation, through maximising expected utility for dynamic, myopic and Buy&Hold portfolios
 
-all_allocations <- all_allocations[121736:(121736+1000),]
-rownames(all_allocations) <- NULL
+#all_allocations <- all_allocations[121736:(121736+1000),]
+#rownames(all_allocations) <- NULL
 #Run the optimisation over the base case dataset
 if (hyperParm_tuning){
   optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                    ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],600)
+                                                    ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000)
 } else {
   optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],600)
-  print('CE of above allocation is:')
-  print(get_CE(optimal_allocations[[1]],return_var_test_list))
+                                                ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000)
 }
 
 #Export in a RData file type to Documents
-save(optimal_allocations,file='C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/optimal_allocations.RData')
+save(optimal_allocations,file='simple_optimal_allocations.RData')
