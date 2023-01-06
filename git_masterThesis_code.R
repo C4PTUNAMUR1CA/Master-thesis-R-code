@@ -628,11 +628,12 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
         for (subset in 1:(full_subsets+1)){
           print(paste('Entered subset number ',as.character(subset),sep=''))
           print(Sys.time())
-          if (subset<(full_subsets)){
+          if (subset<(full_subsets+1)){
             current_allocation_subset <- all_allocations_dynamic[(1+subset_size*(subset-1)):(subset_size*(subset)),]
           } else {
             current_allocation_subset <- all_allocations_dynamic[(1+subset_size*(subset-1)):(nrow(all_allocations_dynamic)),]
           }
+          print(paste('current_allocation_subset is ',nrow(current_allocation_subset),sep=''))
           rownames(current_allocation_subset) <- NULL
           #return(current_allocation_subset)
           
@@ -640,42 +641,102 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
           doParallel::registerDoParallel(cl)
           utility_over_allocations_dynamic_list <- foreach(iteration=1:nrow(current_allocation_subset),.packages='testPack2') %dopar% {
             
-            utility_all_scenarios_dynamic <- vector_utility_calculation(current_allocation_subset[iteration,],
-                                                                        return_var_list,
-                                                                        gamma,
-                                                                        period,(current_max_horizon),
-                                                                        period_list)
-            utility_all_scenarios_dynamic
-            across_path_df <- list()
-            across_path_df[['y']] <- utility_all_scenarios_dynamic
+            if((horizon==3)&(period==2)){
+              
 
-            for (state_var in names(state_var_list)){
-              #Create state variables
-              current_state_var <- state_var_list[[state_var]][,(period-1)]
-              across_path_df[[state_var]] <- current_state_var
+              #if we are in the first period, then we dont require to collect utilities from other periods
+              wealth <- matrix(0,nrow=nrow(return_var_list[[1]]),ncol=1)
+              if (period==(current_max_horizon)){
+                #calculate the power utility given the allocation, over all scenarios
+                col_num <- 1
+                for (var in names(return_var_list)){
+                  wealth <- wealth + current_allocation_subset[iteration,col_num]*return_var_list[[var]][,period]
+                  col_num <- col_num + 1
+                }
+                gamma_adjusted_utility <- apply(wealth,1,U)
+              } else {
+                col_num <- 1
+                for (var in names(return_var_list)){
+                  wealth <- wealth + current_allocation_subset[iteration,col_num]*return_var_list[[var]][,period]
+                  col_num <- col_num + 1
+                }
+                #Use power utility, except when gamma is 1, then refer to log utility
+                wealth_gammaPower <- wealth^(1-gamma)
+
+                #Collects the accumulated wealth over all future periods, for each scenario
+                accumulated_wealth <- wealth_gammaPower
+                for (future_period in (period+1):(retirement_age)){
+                  future_period_chr <- paste('age_',as.character(future_period),sep='')
+                  accumulated_wealth <- accumulated_wealth * as.vector(period_list[[future_period]][,'utility'])
+                }
+                #Use power utility, except when gamma is 1, then refer to log utility
+                gamma_adjusted_utility <- (1/(1-gamma))*accumulated_wealth
+              }
+              
+              # utility_all_scenarios_dynamic <- vector_utility_calculation(current_allocation_subset[iteration,],
+              #                                                             return_var_list,
+              #                                                             gamma,
+              #                                                             period,(current_max_horizon),
+              #                                                             period_list)
+            } else {
+              utility_all_scenarios_dynamic <- vector_utility_calculation(current_allocation_subset[iteration,],
+                                                                          return_var_list,
+                                                                          gamma,
+                                                                          period,(current_max_horizon),
+                                                                          period_list)
+              utility_all_scenarios_dynamic
+              across_path_df <- list()
+              across_path_df[['y']] <- utility_all_scenarios_dynamic
+              
+              for (state_var in names(state_var_list)){
+                #Create state variables
+                current_state_var <- state_var_list[[state_var]][,(period-1)]
+                across_path_df[[state_var]] <- current_state_var
+              }
+              across_path_df <- as.data.frame(do.call(cbind,across_path_df))
+              colnames(across_path_df)[1] <- 'y'
+              fitted_utility <- OLS_fittedValue(across_path_df)
+              
+              append(fitted_utility,mean(across_path_df$y))
             }
-            across_path_df <- as.data.frame(do.call(cbind,across_path_df))
-            colnames(across_path_df)[1] <- 'y'
-            fitted_utility <- OLS_fittedValue(across_path_df)
-
-            append(fitted_utility,mean(across_path_df$y))
+            # utility_all_scenarios_dynamic <- vector_utility_calculation(current_allocation_subset[iteration,],
+            #                                                             return_var_list,
+            #                                                             gamma,
+            #                                                             period,(current_max_horizon),
+            #                                                             period_list)
+            # utility_all_scenarios_dynamic
+            # across_path_df <- list()
+            # across_path_df[['y']] <- utility_all_scenarios_dynamic
+            # 
+            # for (state_var in names(state_var_list)){
+            #   #Create state variables
+            #   current_state_var <- state_var_list[[state_var]][,(period-1)]
+            #   across_path_df[[state_var]] <- current_state_var
+            # }
+            # across_path_df <- as.data.frame(do.call(cbind,across_path_df))
+            # colnames(across_path_df)[1] <- 'y'
+            # fitted_utility <- OLS_fittedValue(across_path_df)
+            # 
+            # append(fitted_utility,mean(across_path_df$y))
           }
           parallel::stopCluster(cl)
+          print('check 1')
           
           utility_over_allocations_dynamic_list <- do.call(rbind,utility_over_allocations_dynamic_list)
           
-          if (subset<(full_subsets)){
+          if (subset<(full_subsets+1)){
             final_expected_utility_dynamic[((1+subset_size*(subset-1)):(subset_size*(subset))),1] <- utility_over_allocations_dynamic_list[,ncol(utility_over_allocations_dynamic_list)]
           } else {
             final_expected_utility_dynamic[((1+subset_size*(subset-1)):(nrow(all_allocations_dynamic))),1] <- utility_over_allocations_dynamic_list[,ncol(utility_over_allocations_dynamic_list)]
           }
-          
           utility_over_allocations_dynamic <- utility_over_allocations_dynamic_list[,(1:(ncol(utility_over_allocations_dynamic_list)-1))]
           
           #Obtain the allocation which has the highest utility, for each scenario
-          max_utility_rowIndex_perScenario_dynamic <- unlist(mclapply(1:ncol(utility_over_allocations_dynamic),find_max_index))
+          max_utility_rowIndex_perScenario_dynamic <- unlist(mclapply(1:ncol(utility_over_allocations_dynamic),find_max_index,utility_over_allocations_dynamic))
+          return(max_utility_rowIndex_perScenario_dynamic)
           #Extract these allocations from the matrix with all possible allocations for every scenario
           max_utility_perScenario_dynamic <- unlist(mclapply(1:ncol(utility_over_allocations_dynamic),find_max))
+          return(max_utility_rowIndex_perScenario_dynamic)
           #NEED TO COME UP WITH A COMPARISON TOOL BETWEEN SUBSETS AND THE MAXIMUM UTILITY
           optimal_allocations_perScenario_dynamic <- current_allocation_subset[max_utility_rowIndex_perScenario_dynamic,]
           #Reset the index of the matrix
@@ -912,7 +973,6 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
         #Break because we do not need the calculations below for the last iteration anyways
         break
       }
-      
       #for the optimal portfolio allocations for each scenario, calculate its corresponding utility
       #should be a (#scenarios)x1 matrix
       vector_wealth <- matrix(0,nrow=nrow(return_var_list[[1]]),ncol=1)
@@ -931,12 +991,15 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
       
       #store in period list
       period_list[[period]] <- optimal_allocations_perScenario_dynamic
+      return(period_list)
       #names(period_list)[names(period_list)=='newPeriod'] <- current_period_chr
       
       #update the possible portfolio allocation grid, by adhering to
       #to the fact that stock allocation can decrease by at most 8% over time
       all_allocations_dynamic <- generate_next_allocation_grid(allocations_dynamic[period,],0.04,0.04)
-      
+      # if ((horizon==3)&(period==3)){
+      #   return(all_allocations_dynamic)
+      # }
       #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
       if (ESG_constraint){
         all_allocations_dynamic <- ESG_restrict_allocations(all_allocations_dynamic,ESG_scores,ESG_threshold,
@@ -1130,6 +1193,6 @@ if (hyperParm_tuning){
   print('CE of above allocation is:')
   print(get_CE(optimal_allocations[[1]],return_var_test_list))
 }
-
+optimal_allocations[[2]]
 #Export in a RData file type to Documents
 save(optimal_allocations,file='C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/optimal_allocations.RData')
