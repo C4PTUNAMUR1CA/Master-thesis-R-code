@@ -89,4 +89,4 @@ allocations_graphs(oneOverN_allocation,horizons)
 horizons=1:15
 allocations_graphs_equitySummed(oneOverN_allocation,horizons)
 
-#=============== Section 4: other asset allocations ========
+#=============== Section 4: other asset allocations ==========================================

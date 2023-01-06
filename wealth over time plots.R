@@ -173,6 +173,8 @@ wealth_uncertainty_plot(wealthPerScenario_oneOverN)
 
 #=============== Section End: Create CE plot with all asset allocations ========
 
+#add other asset allocations here
 CE_all <- cbind(CE_oneOverNFair_horizons,CE_oneOverN_horizons)
 
+#show the CE plot
 CE_plot(CE_all)
