@@ -947,7 +947,9 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
     #Store the optimal allocations over all periods for the specific gamma in the list 
     allocations_dynamic_horizons[[horizon]] <- as.data.frame(allocations_dynamic)
     allocations_BuyHold_horizons[[horizon]] <- as.data.frame(allocations_buyHold)
-    break
+    if (horizon==3){
+      break
+    }
   }
   if (hyperParm_tuning){
     return(optimal_hyperparameters)
@@ -1128,11 +1130,6 @@ if (hyperParm_tuning){
   print('CE of above allocation is:')
   print(get_CE(optimal_allocations[[1]],return_var_test_list))
 }
-
-
-all_allocations_test <- all_allocations
-ESG_restrict_allocations(all_allocations_test,final_esg_score_list[[as.character(0)]],
-                         ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1])
 
 #Export in a RData file type to Documents
 save(optimal_allocations,file='C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/optimal_allocations.RData')
