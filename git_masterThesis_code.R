@@ -1193,4 +1193,4 @@ if (hyperParm_tuning){
 }
 
 #Export in a RData file type to Documents
-save(optimal_allocations,file='simple_optimal_allocations.RData')
+save(optimal_allocations,file='simple_returnOnly_optimal_allocations.RData')
