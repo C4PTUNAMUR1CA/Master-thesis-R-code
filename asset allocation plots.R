@@ -90,3 +90,7 @@ horizons=1:15
 allocations_graphs_equitySummed(oneOverN_allocation,horizons)
 
 #=============== Section 4: other asset allocations ==========================================
+
+load('simple_returnOnly_optimal_allocations.RData')
+
+
