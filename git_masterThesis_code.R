@@ -468,6 +468,9 @@ generate_next_allocation_grid_v2 <- function(current_allocation,increment_value,
   return(all_allocations)
 }
 
+# round(sum(c(0.46,0.0,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0)),2)
+# generate_next_allocation_grid(c(0.46,0.0,0.06,0.16,0.00,0.4,0.0,0.0,0.0,0.0,0.0),0.04,0.04)
+
 generate_next_allocation_grid <- function(current_allocation,increment_value,width_length){
   #This function generated a new allocation grid
   #Inputs:
@@ -479,17 +482,18 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,wid
   allocations_assets <- list()
   for (asset in 1:length(current_allocation)){
     if (round(current_allocation[asset],2)<=width_length) {
-      allocations_assets[[asset]] <- seq(0,(2*width_length),by=increment_value)
+      allocations_assets[[asset]] <- round(seq(current_allocation[asset],current_allocation[asset]+(2*width_length),by=increment_value),2)
+      #allocations_assets[[asset]] <- round(seq(0,(2*width_length),by=increment_value),2)
     } else if (round(current_allocation[asset],2)<=(1-width_length)){
-      allocations_assets[[asset]] <- seq(current_allocation[asset]-width_length,current_allocation[asset]+width_length,by=increment_value)
+      allocations_assets[[asset]] <- round(seq(current_allocation[asset]-width_length,current_allocation[asset]+width_length,by=increment_value),2)
     } else {
-      allocations_assets[[asset]] <- seq((1-(2*width_length)),1,by=increment_value)
+      allocations_assets[[asset]] <- round(seq((1-(2*width_length)),1,by=increment_value),2)
     }
   }
   
   all_allocations <- matrix(NA,nrow=20000000,ncol=num_assets)
   next_row <- 1
-  
+
   #Loop over all the possible portfolio weights
   #and only store the combined portfolio weights which add to 1, the portfolio restriction
   for (asset_1 in allocations_assets[[1]]){
@@ -503,7 +507,8 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,wid
                   for (asset_9 in allocations_assets[[9]]){
                     for (asset_10 in allocations_assets[[10]]){
                       for (asset_11 in allocations_assets[[11]]){
-                        if (round(asset_1+asset_2+asset_3+asset_4+asset_5+asset_6+asset_7+asset_8+asset_9+asset_10+asset_11,2)==1){
+                        #print(round(asset_1+asset_2+asset_3+asset_4+asset_5+asset_6+asset_7+asset_8+asset_9+asset_10+asset_11,2))
+                        if (round(asset_1+asset_2+asset_3+asset_4+asset_5+asset_6+asset_7+asset_8+asset_9+asset_10+asset_11,2)==1.00){
                           allocation_vector <- c(asset_1,asset_2,asset_3,
                                                  asset_4,asset_5,asset_6,
                                                  asset_7,asset_8,asset_9,
@@ -582,7 +587,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
   allocations_BuyHold_horizons <- list()
   
   #loop over all horizons, to find the optimal asset allocation per forecasting horizon
-  for (horizon in 2:max_horizon){
+  for (horizon in 11:max_horizon){
     print(paste('horizon_',horizon,sep=''))
     
     #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
@@ -996,6 +1001,12 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
       
       #update the possible portfolio allocation grid, by adhering to
       #to the fact that stock allocation can decrease by at most 8% over time
+      if ((horizon==11)&(period==8)){
+        print(allocations_dynamic[period,])
+      }
+      if ((horizon==11)&(period==9)){
+        print(allocations_dynamic[period,])
+      }
       all_allocations_dynamic <- generate_next_allocation_grid(allocations_dynamic[period,],0.04,0.04)
       # if ((horizon==3)&(period==3)){
       #   return(all_allocations_dynamic)
@@ -1007,11 +1018,15 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
       }
     }
     
-    #Store the optimal allocations over all periods for the specific gamma in the list 
-    allocations_dynamic_horizons[[horizon]] <- as.data.frame(allocations_dynamic)
-    allocations_BuyHold_horizons[[horizon]] <- as.data.frame(allocations_buyHold)
-    if (horizon==4){
-      break
+    #Store the optimal allocations over all periods for the specific gamma in the list
+    if (horizon==2){
+      allocations_dynamic_horizons[[1]] <- as.data.frame(allocations_dynamic)
+      allocations_BuyHold_horizons[[1]] <- as.data.frame(allocations_buyHold)
+      allocations_dynamic_horizons[[horizon]] <- as.data.frame(allocations_dynamic)
+      allocations_BuyHold_horizons[[horizon]] <- as.data.frame(allocations_buyHold)
+    } else {
+      allocations_dynamic_horizons[[horizon]] <- as.data.frame(allocations_dynamic)
+      allocations_BuyHold_horizons[[horizon]] <- as.data.frame(allocations_buyHold)
     }
   }
   if (hyperParm_tuning){
@@ -1192,5 +1207,7 @@ if (hyperParm_tuning){
                                                 ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000)
 }
 
+#c(0.46,0.0,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0)
+#generate_next_allocation_grid(c(0.40,0.06,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0),0.04,0.04)
 #Export in a RData file type to Documents
-save(optimal_allocations,file='simple_returnOnly_optimal_allocations.RData')
+save(optimal_allocations,file='simple_returnOnly_optimal_allocations_secondPart.RData')
