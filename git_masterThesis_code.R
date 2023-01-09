@@ -1210,4 +1210,5 @@ if (hyperParm_tuning){
 #c(0.46,0.0,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0)
 #generate_next_allocation_grid(c(0.40,0.06,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0),0.04,0.04)
 #Export in a RData file type to Documents
-save(optimal_allocations,file='simple_returnOnly_optimal_allocations_secondPart.RData')
+save(optimal_allocations,file='simple_returnOnly_optimal_allocations_thirdPart.RData')
+
