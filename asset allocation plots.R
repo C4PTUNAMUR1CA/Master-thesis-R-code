@@ -89,8 +89,42 @@ allocations_graphs(oneOverN_allocation,horizons)
 horizons=1:15
 allocations_graphs_equitySummed(oneOverN_allocation,horizons)
 
-#=============== Section 4: other asset allocations ==========================================
+#=============== Section 4: Optimal asset allocations for return-only and simple sorting ==========================================
 
-load('simple_returnOnly_optimal_allocations.RData')
+load('simple_returnOnly_optimal_allocations_final.RData')
 
+#plots for the Dynamic asset allocation
+horizons=1:15
+allocations_graphs(optimal_allocations_simple_returnOnly[['Dynamic']][[15]],horizons)
 
+#plots for the Dynamic asset allocation with equity summed
+horizons=1:15
+allocations_graphs_equitySummed(optimal_allocations_simple_returnOnly[['Dynamic']][[15]],horizons)
+
+#plots for the Dynamic asset allocation
+horizons=1:15
+allocations_graphs(optimal_allocations_simple_returnOnly[['BuyHold']][[15]],horizons)
+
+#plots for the Dynamic asset allocation with equity summed
+horizons=1:15
+allocations_graphs_equitySummed(optimal_allocations_simple_returnOnly[['BuyHold']][[15]],horizons)
+
+#=============== Section 5: Optimal asset allocations with ESG restriction and simple sorting ==========================================
+
+load('simple_ESGRestricted_optimal_allocations.RData')
+
+#plots for the Dynamic asset allocation
+horizons=1:15
+allocations_graphs(optimal_allocations_simple_ESGRestricted[['Dynamic']][[15]],horizons)
+
+#plots for the Dynamic asset allocation with equity summed
+horizons=1:15
+allocations_graphs_equitySummed(optimal_allocations_simple_ESGRestricted[['Dynamic']][[15]],horizons)
+
+#plots for the Dynamic asset allocation
+horizons=1:15
+allocations_graphs(optimal_allocations_simple_ESGRestricted[['BuyHold']][[15]],horizons)
+
+#plots for the Dynamic asset allocation with equity summed
+horizons=1:15
+allocations_graphs_equitySummed(optimal_allocations_simple_ESGRestricted[['BuyHold']][[15]],horizons)

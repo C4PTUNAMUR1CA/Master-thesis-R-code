@@ -108,7 +108,7 @@ CE_plot <- function(CE_over_horizons){
     labs(y= "Certainty Equivalent Rate", x = "Horizon") +
     geom_line() +
     scale_x_continuous(breaks = c(3,6,9,12,15))+
-    scale_color_manual(values=c("red", "blue", "green"))
+    scale_color_manual(values=c("red", "blue", "green","black"))
 }
 
 wealth_uncertainty_plot <- function(wealthPerScenario){
@@ -167,14 +167,56 @@ for (horizon in 1:15){
 
 wealth_uncertainty_plot(wealthPerScenario_oneOverN)
 
-#=============== Section 5: Add other asset allocations ========================
+#=============== Section 5: Optimal asset allocations for return-only and simple sorting  ========================
 
+load('simple_returnOnly_optimal_allocations_final.RData')
 
+#perform for the Dynamic Allocation here
+
+CE_simple_returnOnly_horizons_Dynamic <- as.data.frame(matrix(0,nrow=15,ncol=1))
+colnames(CE_simple_returnOnly_horizons_Dynamic) <- "simple, return-only, Dynamic"
+for (horizon in 1:15){
+  if (horizon==1){
+    CE_simple_returnOnly_horizons_Dynamic[horizon,1] <- get_CE(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon+1)
+  } else {
+    CE_simple_returnOnly_horizons_Dynamic[horizon,1] <- get_CE(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon)
+  }
+  if (horizon==15){
+    wealthPerScenario_simple_returnOnly_dynamic <- get_wealth_perScenario(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon)
+    mean_terminal_wealth_simple_returnOnly <- mean(get_terminal_wealth_perScenario(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon))
+    stdev_terminal_wealth_simple_returnOnly <- sd(get_terminal_wealth_perScenario(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon))
+    hist(get_terminal_wealth_perScenario(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon))
+    turnover_simple_returnOnly <- get_turnover(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon)
+  }
+}
+
+wealth_uncertainty_plot(wealthPerScenario_simple_returnOnly_dynamic)
+
+#perform for the Buy&Hold Allocation here
+
+CE_simple_returnOnly_horizons_buyHold <- as.data.frame(matrix(0,nrow=15,ncol=1))
+colnames(CE_simple_returnOnly_horizons_buyHold) <- "simple, return-only, Buy&Hold"
+for (horizon in 1:15){
+  if (horizon==1){
+    CE_simple_returnOnly_horizons_buyHold[horizon,1] <- get_CE(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon+1)
+  } else {
+    CE_simple_returnOnly_horizons_buyHold[horizon,1] <- get_CE(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon)
+  }
+  if (horizon==15){
+    wealthPerScenario_simple_returnOnly_buyHold <- get_wealth_perScenario(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon)
+    mean_terminal_wealth_simple_returnOnly_buyHold <- mean(get_terminal_wealth_perScenario(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon))
+    stdev_terminal_wealth_simple_returnOnly_buyHold <- sd(get_terminal_wealth_perScenario(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon))
+    hist(get_terminal_wealth_perScenario(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon))
+    turnover_simple_returnOnly_buyHold <- get_turnover(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon)
+  }
+}
+
+wealth_uncertainty_plot(wealthPerScenario_simple_returnOnly_buyHold)
 
 #=============== Section End: Create CE plot with all asset allocations ========
 
 #add other asset allocations here
-CE_all <- cbind(CE_oneOverNFair_horizons,CE_oneOverN_horizons)
+CE_all <- cbind(CE_oneOverNFair_horizons,CE_oneOverN_horizons,CE_simple_returnOnly_horizons_Dynamic,CE_simple_returnOnly_horizons_buyHold)
 
 #show the CE plot
 CE_plot(CE_all)

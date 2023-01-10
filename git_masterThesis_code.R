@@ -1210,9 +1210,9 @@ if (hyperParm_tuning){
 #c(0.46,0.0,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0)
 #generate_next_allocation_grid(c(0.40,0.06,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0),0.04,0.04)
 #Export in a RData file type to Documents
-optimal_allocations_simple_ESGRestricted
-save(optimal_allocations,file='simple_returnOnly_optimal_allocations_thirdPart.RData')
-save(optimal_allocations_simple_returnOnly,file='simple_returnOnly_optimal_allocations_final.RData')
+optimal_allocations_simple_ESGRestricted <- optimal_allocations
+save(optimal_allocations_simple_ESGRestricted,file='simple_ESGRestricted_optimal_allocations.RData')
+#save(optimal_allocations_simple_returnOnly,file='simple_returnOnly_optimal_allocations_final.RData')
 
 # load('simple_returnOnly_optimal_allocations_thirdPart.RData')
 # optimal_allocations3 <- optimal_allocations
