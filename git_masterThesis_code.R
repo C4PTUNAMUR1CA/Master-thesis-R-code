@@ -587,7 +587,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
   allocations_BuyHold_horizons <- list()
   
   #loop over all horizons, to find the optimal asset allocation per forecasting horizon
-  for (horizon in 11:max_horizon){
+  for (horizon in 5:10){
     print(paste('horizon_',horizon,sep=''))
     
     #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
@@ -1210,5 +1210,32 @@ if (hyperParm_tuning){
 #c(0.46,0.0,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0)
 #generate_next_allocation_grid(c(0.40,0.06,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0),0.04,0.04)
 #Export in a RData file type to Documents
+optimal_allocations_simple_ESGRestricted
 save(optimal_allocations,file='simple_returnOnly_optimal_allocations_thirdPart.RData')
+save(optimal_allocations_simple_returnOnly,file='simple_returnOnly_optimal_allocations_final.RData')
+
+# load('simple_returnOnly_optimal_allocations_thirdPart.RData')
+# optimal_allocations3 <- optimal_allocations
+# load('simple_returnOnly_optimal_allocations_secondPart.RData')
+# optimal_allocations2 <- optimal_allocations
+# load('simple_returnOnly_optimal_allocations.RData')
+# optimal_allocations1 <- optimal_allocations
+# 
+# optimal_allocations_simple_returnOnly <- list()
+# optimal_allocations_simple_returnOnly[['BuyHold']] <- list()
+# optimal_allocations_simple_returnOnly[['BuyHold']][[1]] <- optimal_allocations1[['BuyHold']][[2]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[2]] <- optimal_allocations1[['BuyHold']][[2]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[3]] <- optimal_allocations1[['BuyHold']][[3]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[4]] <- optimal_allocations1[['BuyHold']][[4]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[5]] <- optimal_allocations3[['BuyHold']][[5]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[6]] <- optimal_allocations3[['BuyHold']][[6]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[7]] <- optimal_allocations3[['BuyHold']][[7]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[8]] <- optimal_allocations3[['BuyHold']][[8]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[9]] <- optimal_allocations3[['BuyHold']][[9]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[10]] <- optimal_allocations3[['BuyHold']][[10]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[11]] <- optimal_allocations2[['BuyHold']][[11]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[12]] <- optimal_allocations2[['BuyHold']][[12]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[13]] <- optimal_allocations2[['BuyHold']][[13]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[14]] <- optimal_allocations2[['BuyHold']][[14]]
+# optimal_allocations_simple_returnOnly[['BuyHold']][[15]] <- optimal_allocations2[['BuyHold']][[15]]
 
