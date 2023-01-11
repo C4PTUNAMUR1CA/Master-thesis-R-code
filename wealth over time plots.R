@@ -315,9 +315,5 @@ CE_all <- cbind(CE_oneOverNFair_horizons,CE_oneOverN_horizons,CE_simple_returnOn
                 CE_simple_returnOnly_horizons_buyHold,CE_simple_ESG_horizons_Dynamic,
                 CE_simple_ESG_horizons_buyHold,CE_kmeans_ESG_horizons_Dynamic,CE_kmeans_ESG_horizons_buyHold)
 
-CE_all_test <- CE_all[,c(4,6)]
-CE_all_test[,'same or not'] <- F
-CE_all_test[(CE_all_test[,1]==CE_all_test[,2]),'same or not'] <- T
-
 #show the CE plot
 CE_plot(CE_all)
