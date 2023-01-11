@@ -53,6 +53,7 @@ wealth_uncertainty_plot <- function(wealthPerScenario){
   ggplot(wealth_graph, aes(x=Horizon,y=y)) + 
     geom_fan() + 
     labs(y= "Cumulative Return", x = "Horizon") +
+    ylim(-1,5) +
     theme_bw() + 
     scale_fill_distiller(palette="Spectral") +
     scale_x_continuous(breaks = c(3,6,9,12,15))
@@ -65,6 +66,7 @@ cumulative_returns <- function(return_list){
   
   for (var in names(return_list)){
     cumulative_returns_list[[var]] <- t(apply(return_list[[var]],1,cumprod))
+    cumulative_returns_list[[var]] <- cumulative_returns_list[[var]] - 1
   }
   
   return(cumulative_returns_list)

@@ -14,8 +14,10 @@ assets <- c( "Tbill_return","Tnote_return","corBond_return",
              "cluster_return_4","cluster_return_5","cluster_return_6",
              "cluster_return_7","cluster_return_8")
 
-load("return_var_test_list_kmeans.RData")
+load("return_var_test_list_simple.RData")
 return_test_set <- return_var_test_list
+load("return_var_test_list_kmeans.RData")
+return_test_set_kmeans <- return_var_test_list
 
 source("Utility Functions.R")
 
@@ -108,7 +110,7 @@ CE_plot <- function(CE_over_horizons){
     labs(y= "Certainty Equivalent Rate", x = "Horizon") +
     geom_line() +
     scale_x_continuous(breaks = c(3,6,9,12,15))+
-    scale_color_manual(values=c("red", "blue", "green","black"))
+    scale_color_manual(values=c("red", "blue", "green","black","purple","cyan","pink","orange"))
 }
 
 wealth_uncertainty_plot <- function(wealthPerScenario){
@@ -118,6 +120,7 @@ wealth_uncertainty_plot <- function(wealthPerScenario){
   ggplot(wealth_graph, aes(x=Horizon,y=y)) + 
     geom_fan() + 
     labs(y= "Accumulated Wealth", x = "Horizon") +
+    ylim(0,7) +
     theme_bw() + 
     scale_fill_distiller(palette="Spectral") +
     scale_x_continuous(breaks = c(3,6,9,12,15))
@@ -213,10 +216,108 @@ for (horizon in 1:15){
 
 wealth_uncertainty_plot(wealthPerScenario_simple_returnOnly_buyHold)
 
+#=============== Section 5: Optimal asset allocations for ESG restricted and simple sorting  ========================
+
+load('simple_ESGRestricted_optimal_allocations.RData')
+
+#perform for the Dynamic Allocation here
+
+CE_simple_ESG_horizons_Dynamic <- as.data.frame(matrix(0,nrow=15,ncol=1))
+colnames(CE_simple_ESG_horizons_Dynamic) <- "simple, ESG-restricted, Dynamic"
+for (horizon in 1:15){
+  if (horizon==1){
+    CE_simple_ESG_horizons_Dynamic[horizon,1] <- get_CE(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon+1)
+  } else {
+    CE_simple_ESG_horizons_Dynamic[horizon,1] <- get_CE(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon)
+  }
+  if (horizon==15){
+    wealthPerScenario_simple_ESG_dynamic <- get_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon)
+    mean_terminal_wealth_simple_ESG <- mean(get_terminal_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon))
+    stdev_terminal_wealth_simple_ESG <- sd(get_terminal_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon))
+    hist(get_terminal_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon))
+    turnover_simple_ESG <- get_turnover(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon)
+  }
+}
+
+wealth_uncertainty_plot(wealthPerScenario_simple_ESG_dynamic)
+
+#perform for the Buy&Hold Allocation here
+
+CE_simple_ESG_horizons_buyHold <- as.data.frame(matrix(0,nrow=15,ncol=1))
+colnames(CE_simple_ESG_horizons_buyHold) <- "simple, ESG-restricted, Buy&Hold"
+for (horizon in 1:15){
+  if (horizon==1){
+    CE_simple_ESG_horizons_buyHold[horizon,1] <- get_CE(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon+1)
+  } else {
+    CE_simple_ESG_horizons_buyHold[horizon,1] <- get_CE(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon)
+  }
+  if (horizon==15){
+    wealthPerScenario_simple_ESG_buyHold <- get_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon)
+    mean_terminal_wealth_simple_ESG_buyHold <- mean(get_terminal_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon))
+    stdev_terminal_wealth_simple_ESG_buyHold <- sd(get_terminal_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon))
+    hist(get_terminal_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon))
+    turnover_simple_ESG_buyHold <- get_turnover(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon)
+  }
+}
+
+wealth_uncertainty_plot(wealthPerScenario_simple_ESG_buyHold)
+
+#=============== Section 6: Optimal asset allocations for ESG restricted and kmeans sorting  ========================
+
+load('kmeans_ESGRestricted_optimal_allocations.RData')
+
+#perform for the Dynamic Allocation here
+
+CE_kmeans_ESG_horizons_Dynamic <- as.data.frame(matrix(0,nrow=15,ncol=1))
+colnames(CE_kmeans_ESG_horizons_Dynamic) <- "kmeans, ESG-restricted, Dynamic"
+for (horizon in 1:15){
+  if (horizon==1){
+    CE_kmeans_ESG_horizons_Dynamic[horizon,1] <- get_CE(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon+1)
+  } else {
+    CE_kmeans_ESG_horizons_Dynamic[horizon,1] <- get_CE(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon)
+  }
+  if (horizon==15){
+    wealthPerScenario_kmeans_ESG_dynamic <- get_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon)
+    mean_terminal_wealth_kmeans_ESG <- mean(get_terminal_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon))
+    stdev_terminal_wealth_kmeans_ESG <- sd(get_terminal_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon))
+    hist(get_terminal_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon))
+    turnover_kmeans_ESG <- get_turnover(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon)
+  }
+}
+
+wealth_uncertainty_plot(wealthPerScenario_kmeans_ESG_dynamic)
+
+#perform for the Buy&Hold Allocation here
+
+CE_kmeans_ESG_horizons_buyHold <- as.data.frame(matrix(0,nrow=15,ncol=1))
+colnames(CE_kmeans_ESG_horizons_buyHold) <- "kmeans, ESG-restricted, Buy&Hold"
+for (horizon in 1:15){
+  if (horizon==1){
+    CE_kmeans_ESG_horizons_buyHold[horizon,1] <- get_CE(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon+1)
+  } else {
+    CE_kmeans_ESG_horizons_buyHold[horizon,1] <- get_CE(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon)
+  }
+  if (horizon==15){
+    wealthPerScenario_kmeans_ESG_buyHold <- get_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon)
+    mean_terminal_wealth_kmeans_ESG_buyHold <- mean(get_terminal_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon))
+    stdev_terminal_wealth_kmeans_ESG_buyHold <- sd(get_terminal_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon))
+    hist(get_terminal_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon))
+    turnover_kmeans_ESG_buyHold <- get_turnover(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon)
+  }
+}
+
+wealth_uncertainty_plot(wealthPerScenario_kmeans_ESG_buyHold)
+
 #=============== Section End: Create CE plot with all asset allocations ========
 
 #add other asset allocations here
-CE_all <- cbind(CE_oneOverNFair_horizons,CE_oneOverN_horizons,CE_simple_returnOnly_horizons_Dynamic,CE_simple_returnOnly_horizons_buyHold)
+CE_all <- cbind(CE_oneOverNFair_horizons,CE_oneOverN_horizons,CE_simple_returnOnly_horizons_Dynamic,
+                CE_simple_returnOnly_horizons_buyHold,CE_simple_ESG_horizons_Dynamic,
+                CE_simple_ESG_horizons_buyHold,CE_kmeans_ESG_horizons_Dynamic,CE_kmeans_ESG_horizons_buyHold)
+
+CE_all_test <- CE_all[,c(4,6)]
+CE_all_test[,'same or not'] <- F
+CE_all_test[(CE_all_test[,1]==CE_all_test[,2]),'same or not'] <- T
 
 #show the CE plot
 CE_plot(CE_all)
