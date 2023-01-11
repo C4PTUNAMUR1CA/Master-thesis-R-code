@@ -43,8 +43,8 @@ library(MASS)
 
 #======== Section 1: Load required dataset here =================
 
-file_str_esg_score <- "simple_final_esgScore_cluster"
-simulation_file_name <- "simple_simulation10000_cluster_0"
+file_str_esg_score <- "kmeans_final_esgScore_cluster"
+simulation_file_name <- "kmeans_simulation10000_cluster_0"
 
 #======== Section 2: Specify the settings for the script =================
 
@@ -290,11 +290,11 @@ for (var_name in names(monthly_state_var_list)){
 #save(state_var_test_list,file="C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/state_var_test_list_simple.RData")
 
 #load the training and testing sets
-load("return_var_train_list_simple.RData")
-load("return_var_test_list_simple.RData")
-load("state_var_train_list_simple.RData")
-load("state_var_test_list_simple.RData")
+load("return_var_train_list_kmeans.RData")
+load("return_var_test_list_kmeans.RData")
+load("state_var_train_list_kmeans.RData")
+load("state_var_test_list_kmeans.RData")
 
 #======== Section 7: Create the RData file for the numerical model =================
 
-save.image(file='cluster_0_input.RData')
+save.image(file='cluster_0_input_kmeans.RData')
