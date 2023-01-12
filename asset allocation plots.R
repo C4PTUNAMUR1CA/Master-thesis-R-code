@@ -9,14 +9,14 @@ library(dplyr)
 
 allocations_graphs <- function(allocations,horizons){
   
-  colnames(allocations) <- c("cor-Bond", "T-note", "T-bill",
+  colnames(allocations) <- c("T-bill", "T-note", "cor-Bond",
                              "cluster 1","cluster 2","cluster 3",
                              "cluster 4","cluster 5","cluster 6",
                              "cluster 7","cluster 8")
   
   allocations_graph <- cbind(horizons,stack(allocations[1:ncol(allocations)]))
   colnames(allocations_graph) = cbind('Horizon', 'Allocations', 'Asset')
-  allocations_graph$Asset <- factor(allocations_graph$Asset , levels=c("cor-Bond", "T-note", "T-bill",
+  allocations_graph$Asset <- factor(allocations_graph$Asset , levels=c("T-bill", "T-note", "cor-Bond",
                                                                        "cluster 1","cluster 2","cluster 3",
                                                                        "cluster 4","cluster 5","cluster 6",
                                                                        "cluster 7","cluster 8"))
@@ -35,7 +35,7 @@ allocations_graphs <- function(allocations,horizons){
 
 allocations_graphs_equitySummed <- function(allocations,horizons){
   
-  colnames(allocations) <- c("cor-Bond", "T-note", "T-bill",
+  colnames(allocations) <- c("T-bill","T-note", "cor-Bond",
                              "cluster 1","cluster 2","cluster 3",
                              "cluster 4","cluster 5","cluster 6",
                              "cluster 7","cluster 8")
@@ -43,10 +43,10 @@ allocations_graphs_equitySummed <- function(allocations,horizons){
   allocations[,'Equity'] <- apply(allocations[,c("cluster 1","cluster 2","cluster 3",
                                                  "cluster 4","cluster 5","cluster 6",
                                                  "cluster 7","cluster 8")],1,sum)
-  allocations <- allocations[,c("cor-Bond", "T-note", "T-bill","Equity")]
+  allocations <- allocations[,c("T-bill", "T-note","cor-Bond","Equity")]
   allocations_graph <- cbind(horizons,stack(allocations[1:ncol(allocations)]))
   colnames(allocations_graph) = cbind('Horizon', 'Allocations', 'Asset')
-  allocations_graph$Asset <- factor(allocations_graph$Asset , levels=c("cor-Bond", "T-note", "T-bill",
+  allocations_graph$Asset <- factor(allocations_graph$Asset , levels=c("T-bill", "T-note", "cor-Bond",
                                                                        "Equity"))
   
   # stacked area chart
