@@ -290,8 +290,6 @@ output_table[8,] <- c("K-means, return-only, Buy&Hold",output_vector[[6]],
 
 load('kmeans_ESGRestricted_optimal_allocations.RData')
 
-optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[15]]
-
 #perform for the Dynamic Allocation here
 output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted_final,return_test_set_kmeans,"K-means, ESG-restricted,")
 
