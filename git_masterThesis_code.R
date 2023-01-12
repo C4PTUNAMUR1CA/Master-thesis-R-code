@@ -482,7 +482,7 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,wid
   allocations_assets <- list()
   for (asset in 1:length(current_allocation)){
     if (asset<=2){
-      allocations_assets[[asset]] <- round(seq(current_allocation[asset],current_allocation[asset]+(2*width_length),by=increment_value),2)
+      allocations_assets[[asset]] <- round(seq(current_allocation[asset]-(2*width_length),current_allocation[asset],by=increment_value),2)
     } else {
       if (round(current_allocation[asset],2)<=width_length) {
         allocations_assets[[asset]] <- round(seq(current_allocation[asset],current_allocation[asset]+(2*width_length),by=increment_value),2)
@@ -490,7 +490,7 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,wid
       } else if (round(current_allocation[asset],2)<=(1-width_length)){
         allocations_assets[[asset]] <- round(seq(current_allocation[asset]-width_length,current_allocation[asset]+width_length,by=increment_value),2)
       } else {
-        allocations_assets[[asset]] <- round(seq((1-(2*width_length)),1,by=increment_value),2)
+        allocations_assets[[asset]] <- round(seq((current_allocation[asset]-(2*width_length)),current_allocation[asset],by=increment_value),2)
       }
     }
   }
@@ -581,7 +581,7 @@ find_max_index <- function(num_col,df) {
 #======== Section 4: Function to obtain optimal allocations, depending on model type and return scenarios =================
 
 get_optimal_allocation <- function(return_var_list,state_var_list,all_allocations,ESG_constraint,ESG_scores,
-                                   ESG_threshold,env_weight,soc_weight,gov_weight,subset_size){
+                                   ESG_threshold,env_weight,soc_weight,gov_weight,subset_size,incr_value){
   #Returns the optimal allocation for a dynamic, myopic and Buy&Hold portfolio
   #But if HyperParm_tuning is True, then it returns the optimal hyperparameters for the ML model, per period
   
@@ -953,7 +953,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
         #repeat above steps, but now for the Buy&Hold portfolio allocation optimization
         max_finalUtility_rowIndex_buyHold <- which(final_expected_utility_buyHold==max(final_expected_utility_buyHold))
         #REPEAT HERE TO FIND OPTIMAL ALLOCATION AROUND THE OTHER OPTIMAL ALLOCATION
-        all_allocations_buyHold <- generate_next_allocation_grid_v2(all_allocations[max_finalUtility_rowIndex_buyHold,],0.04,0.04)
+        all_allocations_buyHold <- generate_next_allocation_grid_v2(all_allocations[max_finalUtility_rowIndex_buyHold,],incr_value,incr_value)
         #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
         if (ESG_constraint){
           all_allocations_buyHold <- ESG_restrict_allocations(all_allocations_buyHold,ESG_scores,ESG_threshold,
@@ -1011,7 +1011,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
       if ((horizon==11)&(period==9)){
         print(allocations_dynamic[period,])
       }
-      all_allocations_dynamic <- generate_next_allocation_grid(allocations_dynamic[period,],0.04,0.04)
+      all_allocations_dynamic <- generate_next_allocation_grid(allocations_dynamic[period,],incr_value,incr_value)
       # if ((horizon==3)&(period==3)){
       #   return(all_allocations_dynamic)
       # }
@@ -1214,47 +1214,74 @@ create_output <- function(type_strat){
   }
 }
 
-for (i in 1:4){
+for (i in 1:8){
   if (i==1){
     load('cluster_0_input.RData')
     ESG_constraint <- F
     output_file_name <- "simple_returnOnly_optimal_allocations_v2.RData"
+    increment_level <- 0.04
   } else if (i==2){
     load('cluster_0_input.RData')
     ESG_constraint <- T
     output_file_name <- "simple_ESGRestricted_optimal_allocations_v2.RData"
+    increment_level <- 0.04
   } else if (i==3){
     load('cluster_0_input_kmeans.RData')
     ESG_constraint <- F
     output_file_name <- "kmeans_returnOnly_optimal_allocations_v2.RData"
-  } else {
+    increment_level <- 0.04
+  } else if (i==4) {
     load('cluster_0_input_kmeans.RData')
     ESG_constraint <- T
     output_file_name <- "kmeans_ESGRestricted_optimal_allocations_v2.RData"
+    increment_level <- 0.04
+  } else if (i==5) {
+    load('cluster_0_input.RData')
+    ESG_constraint <- F
+    output_file_name <- "simple_returnOnly_optimal_allocations_v3.RData"
+    increment_level <- 0.06
+  } else if (i==6) {
+    load('cluster_0_input.RData')
+    ESG_constraint <- T
+    output_file_name <- "simple_ESGRestricted_optimal_allocations_v3.RData"
+    increment_level <- 0.06
+  } else if (i==7) {
+    load('cluster_0_input_kmeans.RData')
+    ESG_constraint <- F
+    output_file_name <- "kmeans_returnOnly_optimal_allocations_v3.RData"
+    increment_level <- 0.06
+  } else if (i==8) {
+    load('cluster_0_input_kmeans.RData')
+    ESG_constraint <- T
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_v3.RData"
+    increment_level <- 0.06
   }
   
+  
+  
+  print(paste('WE ARE AT ITERATION:',i,sep=''))
   if (hyperParm_tuning){
     optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                      ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000)
+                                                      ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000,increment_level)
   } else {
     optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                  ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000)
+                                                  ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000,increment_level)
   }
   
   save(optimal_allocations,file=output_file_name)
 }
 
 
-if (hyperParm_tuning){
-  optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                    ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000)
-} else {
-  optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000)
-}
+# if (hyperParm_tuning){
+#   optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
+#                                                     ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000)
+# } else {
+#   optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
+#                                                 ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000)
+# }
 
 
 #Export in a RData file type to Documents
-optimal_allocations_kmeans_returnOnly <- optimal_allocations
-save(optimal_allocations_kmeans_returnOnly,file='kmeans_returnOnly_optimal_allocations.RData')
+#optimal_allocations_kmeans_returnOnly <- optimal_allocations
+#save(optimal_allocations_kmeans_returnOnly,file='kmeans_returnOnly_optimal_allocations.RData')
 #save(optimal_allocations_simple_returnOnly,file='simple_returnOnly_optimal_allocations_final.RData')
