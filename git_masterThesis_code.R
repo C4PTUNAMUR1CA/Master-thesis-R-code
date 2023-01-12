@@ -1202,18 +1202,6 @@ total_Allocation_count <- nrow(all_allocations)
 #rownames(all_allocations) <- NULL
 #Run the optimisation over the base case dataset
 
-create_output <- function(type_strat){
-  if (type_strat==1){
-    
-  } else if (type_strat==2){
-    
-  } else if (type_strat==3){
-    
-  } else {
-    
-  }
-}
-
 for (i in 1:8){
   if (i==1){
     load('cluster_0_input.RData')
@@ -1256,8 +1244,6 @@ for (i in 1:8){
     output_file_name <- "kmeans_ESGRestricted_optimal_allocations_v3.RData"
     increment_level <- 0.06
   }
-  
-  
   
   print(paste('WE ARE AT ITERATION:',i,sep=''))
   if (hyperParm_tuning){
