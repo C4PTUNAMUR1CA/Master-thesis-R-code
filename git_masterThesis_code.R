@@ -1076,9 +1076,7 @@ get_CE <- function(opt_allocation,return_list){
 #======== Section 6: Load RData file for specific cluster =================
 
 source('Utility Functions.R')
-load('cluster_0_input_kmeans.RData')
 
-ESG_constraint <- F
 
 #======== Section 7: Data cleaning and preparation =================
 
@@ -1199,6 +1197,50 @@ total_Allocation_count <- nrow(all_allocations)
 #all_allocations <- all_allocations[121736:(121736+1000),]
 #rownames(all_allocations) <- NULL
 #Run the optimisation over the base case dataset
+
+create_output <- function(type_strat){
+  if (type_strat==1){
+    
+  } else if (type_strat==2){
+    
+  } else if (type_strat==3){
+    
+  } else {
+    
+  }
+}
+
+for (i in 1:4){
+  if (i==1){
+    load('cluster_0_input.RData')
+    ESG_constraint <- F
+    output_file_name <- "simple_returnOnly_optimal_allocations_v2.RData"
+  } else if (i==2){
+    load('cluster_0_input.RData')
+    ESG_constraint <- T
+    output_file_name <- "simple_ESGRestricted_optimal_allocations_v2.RData"
+  } else if (i==3){
+    load('cluster_0_input_kmeans.RData')
+    ESG_constraint <- F
+    output_file_name <- "kmeans_returnOnly_optimal_allocations_v2.RData"
+  } else {
+    load('cluster_0_input_kmeans.RData')
+    ESG_constraint <- T
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_v2.RData"
+  }
+  
+  if (hyperParm_tuning){
+    optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
+                                                      ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000)
+  } else {
+    optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
+                                                  ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000)
+  }
+  
+  save(optimal_allocations,file=output_file_name)
+}
+
+
 if (hyperParm_tuning){
   optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
                                                     ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000)
@@ -1207,40 +1249,8 @@ if (hyperParm_tuning){
                                                 ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000)
 }
 
-#c(0.46,0.0,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0)
-#generate_next_allocation_grid(c(0.40,0.06,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0),0.04,0.04)
+
 #Export in a RData file type to Documents
 optimal_allocations_kmeans_returnOnly <- optimal_allocations
 save(optimal_allocations_kmeans_returnOnly,file='kmeans_returnOnly_optimal_allocations.RData')
 #save(optimal_allocations_simple_returnOnly,file='simple_returnOnly_optimal_allocations_final.RData')
-
-# load('simple_ESGRestricted_optimal_allocations_firstPart.RData')
-# optimal_allocations1 <- optimal_allocations_simple_ESGRestricted_firstPart
-# load('simple_ESGRestricted_optimal_allocations_secondPart.RData')
-# optimal_allocations2 <- optimal_allocations_simple_ESGRestricted_secondPart
-# load('simple_ESGRestricted_optimal_allocations_thirdPart.RData')
-# optimal_allocations3 <- optimal_allocations_simple_ESGRestricted_thirdPart
-# load('simple_ESGRestricted_optimal_allocations_fourthPart.RData')
-# optimal_allocations4 <- optimal_allocations_simple_ESGRestricted_fourthPart
-# load('simple_ESGRestricted_optimal_allocations_fifthPart.RData')
-# optimal_allocations5 <- optimal_allocations_simple_ESGRestricted_fifthPart
-# 
-# optimal_allocations_kmeans_returnOnly <- list()
-# optimal_allocations_kmeans_returnOnly[['BuyHold']] <- list()
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[1]] <- optimal_allocations1[['BuyHold']][[2]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[2]] <- optimal_allocations1[['BuyHold']][[2]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[3]] <- optimal_allocations1[['BuyHold']][[3]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[4]] <- optimal_allocations1[['BuyHold']][[4]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[5]] <- optimal_allocations1[['BuyHold']][[5]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[6]] <- optimal_allocations1[['BuyHold']][[6]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[7]] <- optimal_allocations2[['BuyHold']][[7]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[8]] <- optimal_allocations2[['BuyHold']][[8]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[9]] <- optimal_allocations2[['BuyHold']][[9]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[10]] <- optimal_allocations3[['BuyHold']][[10]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[11]] <- optimal_allocations3[['BuyHold']][[11]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[12]] <- optimal_allocations4[['BuyHold']][[12]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[13]] <- optimal_allocations4[['BuyHold']][[13]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[14]] <- optimal_allocations5[['BuyHold']][[14]]
-# optimal_allocations_kmeans_returnOnly[['BuyHold']][[15]] <- optimal_allocations5[['BuyHold']][[15]]
-# 
-# save(optimal_allocations_simple_ESGRestricted,file='simple_ESGRestricted_optimal_allocations.RData')
