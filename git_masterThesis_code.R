@@ -411,7 +411,7 @@ generate_next_allocation_grid_v2 <- function(current_allocation,increment_value,
   allocations_assets <- list()
   for (asset in 1:length(current_allocation)){
     if (round(current_allocation[,asset],2)<=width_length) {
-      allocations_assets[[asset]] <- seq(0,(2*width_length),by=increment_value)
+      allocations_assets[[asset]] <- seq(current_allocation[,asset],(2*width_length),by=increment_value)
     } else if (round(current_allocation[,asset],2)<=(1-width_length)){
       allocations_assets[[asset]] <- seq(current_allocation[,asset]-width_length,current_allocation[,asset]+width_length,by=increment_value)
     } else {
@@ -481,13 +481,17 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,wid
   #Generate here the possible portfolio weights per asset, given its current portfolio weight in current_allocation
   allocations_assets <- list()
   for (asset in 1:length(current_allocation)){
-    if (round(current_allocation[asset],2)<=width_length) {
+    if (asset<=2){
       allocations_assets[[asset]] <- round(seq(current_allocation[asset],current_allocation[asset]+(2*width_length),by=increment_value),2)
-      #allocations_assets[[asset]] <- round(seq(0,(2*width_length),by=increment_value),2)
-    } else if (round(current_allocation[asset],2)<=(1-width_length)){
-      allocations_assets[[asset]] <- round(seq(current_allocation[asset]-width_length,current_allocation[asset]+width_length,by=increment_value),2)
     } else {
-      allocations_assets[[asset]] <- round(seq((1-(2*width_length)),1,by=increment_value),2)
+      if (round(current_allocation[asset],2)<=width_length) {
+        allocations_assets[[asset]] <- round(seq(current_allocation[asset],current_allocation[asset]+(2*width_length),by=increment_value),2)
+        #allocations_assets[[asset]] <- round(seq(0,(2*width_length),by=increment_value),2)
+      } else if (round(current_allocation[asset],2)<=(1-width_length)){
+        allocations_assets[[asset]] <- round(seq(current_allocation[asset]-width_length,current_allocation[asset]+width_length,by=increment_value),2)
+      } else {
+        allocations_assets[[asset]] <- round(seq((1-(2*width_length)),1,by=increment_value),2)
+      }
     }
   }
   
