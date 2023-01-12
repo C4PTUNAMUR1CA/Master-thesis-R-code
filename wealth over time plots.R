@@ -110,20 +110,64 @@ CE_plot <- function(CE_over_horizons){
     labs(y= "Certainty Equivalent Rate", x = "Horizon") +
     geom_line() +
     scale_x_continuous(breaks = c(3,6,9,12,15))+
-    scale_color_manual(values=c("red", "blue", "green","black","purple","cyan","pink","orange"))
+    scale_color_manual(values=c("red", "blue", "green","black","purple","cyan","pink","orange","yellow","darkgreen"))
 }
 
 wealth_uncertainty_plot <- function(wealthPerScenario){
   
   wealth_graph <- data.frame(Horizon=1:ncol(wealthPerScenario),t(wealthPerScenario)) %>% gather(key = Sim,value=y,-Horizon)
   
-  ggplot(wealth_graph, aes(x=Horizon,y=y)) + 
+  plot <- ggplot(wealth_graph, aes(x=Horizon,y=y)) + 
     geom_fan() + 
     labs(y= "Accumulated Wealth", x = "Horizon") +
     ylim(0,7) +
     theme_bw() + 
     scale_fill_distiller(palette="Spectral") +
     scale_x_continuous(breaks = c(3,6,9,12,15))
+  print(plot)
+}
+
+Generate_all_plots <- function(optimal_allocation,return_set,colname){
+  
+  CE_df_dyn <- as.data.frame(matrix(0,nrow=15,ncol=1))
+  colnames(CE_df_dyn) <- paste(colname,"Dynamic",sep=' ')
+  for (horizon in 1:15){
+    if (horizon==1){
+      CE_df_dyn[horizon,1] <- get_CE(optimal_allocation[['Dynamic']][[horizon]],return_set,horizon+1)
+    } else {
+      CE_df_dyn[horizon,1] <- get_CE(optimal_allocation[['Dynamic']][[horizon]],return_set,horizon)
+    }
+    if (horizon==15){
+      wealthPerScenario_dyn <- get_wealth_perScenario(optimal_allocation[['Dynamic']][[horizon]],return_set,horizon)
+      mean_terminal_wealth_dyn <- mean(get_terminal_wealth_perScenario(optimal_allocation[['Dynamic']][[horizon]],return_set,horizon))
+      stdev_terminal_wealth_dyn <- sd(get_terminal_wealth_perScenario(optimal_allocation[['Dynamic']][[horizon]],return_set,horizon))
+      hist(get_terminal_wealth_perScenario(optimal_allocation[['Dynamic']][[horizon]],return_set,horizon))
+      turnover_dyn <- get_turnover(optimal_allocation[['Dynamic']][[horizon]],return_set,horizon)
+    }
+  }
+  
+  wealth_uncertainty_plot(wealthPerScenario_dyn)
+  
+  CE_df_BH <- as.data.frame(matrix(0,nrow=15,ncol=1))
+  colnames(CE_df_BH) <- paste(colname,"Buy&Hold",sep=' ')
+  for (horizon in 1:15){
+    if (horizon==1){
+      CE_df_BH[horizon,1] <- get_CE(optimal_allocation[['BuyHold']][[horizon]],return_set,horizon+1)
+    } else {
+      CE_df_BH[horizon,1] <- get_CE(optimal_allocation[['BuyHold']][[horizon]],return_set,horizon)
+    }
+    if (horizon==15){
+      wealthPerScenario_BH <- get_wealth_perScenario(optimal_allocation[['BuyHold']][[horizon]],return_set,horizon)
+      mean_terminal_wealth_BH <- mean(get_terminal_wealth_perScenario(optimal_allocation[['BuyHold']][[horizon]],return_set,horizon))
+      stdev_terminal_wealth_BH <- sd(get_terminal_wealth_perScenario(optimal_allocation[['BuyHold']][[horizon]],return_set,horizon))
+      hist(get_terminal_wealth_perScenario(optimal_allocation[['BuyHold']][[horizon]],return_set,horizon))
+      turnover_BH <- get_turnover(optimal_allocation[['BuyHold']][[horizon]],return_set,horizon)
+    }
+  }
+  
+  wealth_uncertainty_plot(wealthPerScenario_BH)
+  return(c(CE_df_dyn,mean_terminal_wealth_dyn,stdev_terminal_wealth_dyn,turnover_dyn,
+           CE_df_BH,mean_terminal_wealth_BH,stdev_terminal_wealth_BH,turnover_BH))
 }
 
 #=============== Section 3: 1 over N allocation, with equal weight across asset classes ========
@@ -174,145 +218,73 @@ wealth_uncertainty_plot(wealthPerScenario_oneOverN)
 
 load('simple_returnOnly_optimal_allocations_final.RData')
 
+
+output_vector <- Generate_all_plots(optimal_allocations_simple_returnOnly,return_test_set,"simple, return-only,")
+  
+CE_simple_returnOnly_horizons_Dynamic <- output_vector[[1]]
+mean_terminal_wealth_simple_returnOnly <- output_vector[[2]]
+stdev_terminal_wealth_simple_returnOnly <- output_vector[[3]]
+turnover_simple_returnOnly <- output_vector[[4]]
+CE_simple_returnOnly_horizons_buyHold <- output_vector[[5]]
+mean_terminal_wealth_simple_returnOnly_buyHold <- output_vector[[6]]
+stdev_terminal_wealth_simple_returnOnly_buyHold <- output_vector[[7]]
+turnover_simple_returnOnly_buyHold <- output_vector[[8]]
 #perform for the Dynamic Allocation here
-
-CE_simple_returnOnly_horizons_Dynamic <- as.data.frame(matrix(0,nrow=15,ncol=1))
-colnames(CE_simple_returnOnly_horizons_Dynamic) <- "simple, return-only, Dynamic"
-for (horizon in 1:15){
-  if (horizon==1){
-    CE_simple_returnOnly_horizons_Dynamic[horizon,1] <- get_CE(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon+1)
-  } else {
-    CE_simple_returnOnly_horizons_Dynamic[horizon,1] <- get_CE(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon)
-  }
-  if (horizon==15){
-    wealthPerScenario_simple_returnOnly_dynamic <- get_wealth_perScenario(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon)
-    mean_terminal_wealth_simple_returnOnly <- mean(get_terminal_wealth_perScenario(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon))
-    stdev_terminal_wealth_simple_returnOnly <- sd(get_terminal_wealth_perScenario(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon))
-    hist(get_terminal_wealth_perScenario(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon))
-    turnover_simple_returnOnly <- get_turnover(optimal_allocations_simple_returnOnly[['Dynamic']][[horizon]],return_test_set,horizon)
-  }
-}
-
-wealth_uncertainty_plot(wealthPerScenario_simple_returnOnly_dynamic)
-
-#perform for the Buy&Hold Allocation here
-
-CE_simple_returnOnly_horizons_buyHold <- as.data.frame(matrix(0,nrow=15,ncol=1))
-colnames(CE_simple_returnOnly_horizons_buyHold) <- "simple, return-only, Buy&Hold"
-for (horizon in 1:15){
-  if (horizon==1){
-    CE_simple_returnOnly_horizons_buyHold[horizon,1] <- get_CE(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon+1)
-  } else {
-    CE_simple_returnOnly_horizons_buyHold[horizon,1] <- get_CE(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon)
-  }
-  if (horizon==15){
-    wealthPerScenario_simple_returnOnly_buyHold <- get_wealth_perScenario(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon)
-    mean_terminal_wealth_simple_returnOnly_buyHold <- mean(get_terminal_wealth_perScenario(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon))
-    stdev_terminal_wealth_simple_returnOnly_buyHold <- sd(get_terminal_wealth_perScenario(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon))
-    hist(get_terminal_wealth_perScenario(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon))
-    turnover_simple_returnOnly_buyHold <- get_turnover(optimal_allocations_simple_returnOnly[['BuyHold']][[horizon]],return_test_set,horizon)
-  }
-}
-
-wealth_uncertainty_plot(wealthPerScenario_simple_returnOnly_buyHold)
 
 #=============== Section 5: Optimal asset allocations for ESG restricted and simple sorting  ========================
 
 load('simple_ESGRestricted_optimal_allocations.RData')
 
 #perform for the Dynamic Allocation here
+output_vector <- Generate_all_plots(optimal_allocations_simple_ESGRestricted,return_test_set,"simple, ESG-restricted,")
 
-CE_simple_ESG_horizons_Dynamic <- as.data.frame(matrix(0,nrow=15,ncol=1))
-colnames(CE_simple_ESG_horizons_Dynamic) <- "simple, ESG-restricted, Dynamic"
-for (horizon in 1:15){
-  if (horizon==1){
-    CE_simple_ESG_horizons_Dynamic[horizon,1] <- get_CE(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon+1)
-  } else {
-    CE_simple_ESG_horizons_Dynamic[horizon,1] <- get_CE(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon)
-  }
-  if (horizon==15){
-    wealthPerScenario_simple_ESG_dynamic <- get_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon)
-    mean_terminal_wealth_simple_ESG <- mean(get_terminal_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon))
-    stdev_terminal_wealth_simple_ESG <- sd(get_terminal_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon))
-    hist(get_terminal_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon))
-    turnover_simple_ESG <- get_turnover(optimal_allocations_simple_ESGRestricted[['Dynamic']][[horizon]],return_test_set,horizon)
-  }
-}
+CE_simple_ESG_horizons_Dynamic <- output_vector[[1]]
+mean_terminal_wealth_simple_ESG <- output_vector[[2]]
+stdev_terminal_wealth_simple_ESG <- output_vector[[3]]
+turnover_simple_ESG <- output_vector[[4]]
+CE_simple_ESG_horizons_buyHold <- output_vector[[5]]
+mean_terminal_wealth_simple_ESG_buyHold <- output_vector[[6]]
+stdev_terminal_wealth_simple_ESG_buyHold <- output_vector[[7]]
+turnover_simple_ESG_buyHold <- output_vector[[8]]
 
-wealth_uncertainty_plot(wealthPerScenario_simple_ESG_dynamic)
+#=============== Section 6: Optimal asset allocations for return-only and kmeans sorting  ========================
 
-#perform for the Buy&Hold Allocation here
+load('kmeans_returnOnly_optimal_allocations.RData')
 
-CE_simple_ESG_horizons_buyHold <- as.data.frame(matrix(0,nrow=15,ncol=1))
-colnames(CE_simple_ESG_horizons_buyHold) <- "simple, ESG-restricted, Buy&Hold"
-for (horizon in 1:15){
-  if (horizon==1){
-    CE_simple_ESG_horizons_buyHold[horizon,1] <- get_CE(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon+1)
-  } else {
-    CE_simple_ESG_horizons_buyHold[horizon,1] <- get_CE(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon)
-  }
-  if (horizon==15){
-    wealthPerScenario_simple_ESG_buyHold <- get_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon)
-    mean_terminal_wealth_simple_ESG_buyHold <- mean(get_terminal_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon))
-    stdev_terminal_wealth_simple_ESG_buyHold <- sd(get_terminal_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon))
-    hist(get_terminal_wealth_perScenario(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon))
-    turnover_simple_ESG_buyHold <- get_turnover(optimal_allocations_simple_ESGRestricted[['BuyHold']][[horizon]],return_test_set,horizon)
-  }
-}
+#perform for the Dynamic Allocation here
+output_vector <- Generate_all_plots(optimal_allocations_kmeans_returnOnly,return_test_set,"K-means, return-only,")
 
-wealth_uncertainty_plot(wealthPerScenario_simple_ESG_buyHold)
+CE_kmeans_returnOnly_horizons_Dynamic <- output_vector[[1]]
+mean_terminal_wealth_kmeans_returnOnly <- output_vector[[2]]
+stdev_terminal_wealth_kmeans_returnOnly <- output_vector[[3]]
+turnover_kmeans_returnOnly <- output_vector[[4]]
+CE_kmeans_returnOnly_horizons_buyHold <- output_vector[[5]]
+mean_terminal_wealth_kmeans_returnOnly_buyHold <- output_vector[[6]]
+stdev_terminal_wealth_kmeans_returnOnly_buyHold <- output_vector[[7]]
+turnover_kmeans_returnOnly_buyHold <- output_vector[[8]]
 
-#=============== Section 6: Optimal asset allocations for ESG restricted and kmeans sorting  ========================
+#=============== Section 7: Optimal asset allocations for ESG restricted and kmeans sorting  ========================
 
 load('kmeans_ESGRestricted_optimal_allocations.RData')
 
 #perform for the Dynamic Allocation here
+output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted_final,return_test_set,"K-means, ESG-restricted,")
 
-CE_kmeans_ESG_horizons_Dynamic <- as.data.frame(matrix(0,nrow=15,ncol=1))
-colnames(CE_kmeans_ESG_horizons_Dynamic) <- "kmeans, ESG-restricted, Dynamic"
-for (horizon in 1:15){
-  if (horizon==1){
-    CE_kmeans_ESG_horizons_Dynamic[horizon,1] <- get_CE(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon+1)
-  } else {
-    CE_kmeans_ESG_horizons_Dynamic[horizon,1] <- get_CE(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon)
-  }
-  if (horizon==15){
-    wealthPerScenario_kmeans_ESG_dynamic <- get_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon)
-    mean_terminal_wealth_kmeans_ESG <- mean(get_terminal_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon))
-    stdev_terminal_wealth_kmeans_ESG <- sd(get_terminal_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon))
-    hist(get_terminal_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon))
-    turnover_kmeans_ESG <- get_turnover(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[horizon]],return_test_set_kmeans,horizon)
-  }
-}
-
-wealth_uncertainty_plot(wealthPerScenario_kmeans_ESG_dynamic)
-
-#perform for the Buy&Hold Allocation here
-
-CE_kmeans_ESG_horizons_buyHold <- as.data.frame(matrix(0,nrow=15,ncol=1))
-colnames(CE_kmeans_ESG_horizons_buyHold) <- "kmeans, ESG-restricted, Buy&Hold"
-for (horizon in 1:15){
-  if (horizon==1){
-    CE_kmeans_ESG_horizons_buyHold[horizon,1] <- get_CE(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon+1)
-  } else {
-    CE_kmeans_ESG_horizons_buyHold[horizon,1] <- get_CE(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon)
-  }
-  if (horizon==15){
-    wealthPerScenario_kmeans_ESG_buyHold <- get_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon)
-    mean_terminal_wealth_kmeans_ESG_buyHold <- mean(get_terminal_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon))
-    stdev_terminal_wealth_kmeans_ESG_buyHold <- sd(get_terminal_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon))
-    hist(get_terminal_wealth_perScenario(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon))
-    turnover_kmeans_ESG_buyHold <- get_turnover(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[horizon]],return_test_set_kmeans,horizon)
-  }
-}
-
-wealth_uncertainty_plot(wealthPerScenario_kmeans_ESG_buyHold)
+CE_kmeans_ESG_horizons_Dynamic <- output_vector[[1]]
+mean_terminal_wealth_kmeans_ESG <- output_vector[[2]]
+stdev_terminal_wealth_kmeans_ESG <- output_vector[[3]]
+turnover_kmeans_ESG <- output_vector[[4]]
+CE_kmeans_ESG_horizons_buyHold <- output_vector[[5]]
+mean_terminal_wealth_kmeans_ESG_buyHold <- output_vector[[6]]
+stdev_terminal_wealth_kmeans_ESG_buyHold <- output_vector[[7]]
+turnover_kmeans_ESG_buyHold <- output_vector[[8]]
 
 #=============== Section End: Create CE plot with all asset allocations ========
 
 #add other asset allocations here
 CE_all <- cbind(CE_oneOverNFair_horizons,CE_oneOverN_horizons,CE_simple_returnOnly_horizons_Dynamic,
-                CE_simple_returnOnly_horizons_buyHold,CE_simple_ESG_horizons_Dynamic,
+                CE_simple_returnOnly_horizons_buyHold,CE_kmeans_returnOnly_horizons_Dynamic,
+                CE_kmeans_returnOnly_horizons_buyHold,CE_simple_ESG_horizons_Dynamic,
                 CE_simple_ESG_horizons_buyHold,CE_kmeans_ESG_horizons_Dynamic,CE_kmeans_ESG_horizons_buyHold)
 
 #show the CE plot
