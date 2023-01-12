@@ -1078,7 +1078,7 @@ get_CE <- function(opt_allocation,return_list){
 source('Utility Functions.R')
 load('cluster_0_input_kmeans.RData')
 
-ESG_constraint <- T
+ESG_constraint <- F
 
 #======== Section 7: Data cleaning and preparation =================
 
@@ -1210,8 +1210,8 @@ if (hyperParm_tuning){
 #c(0.46,0.0,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0)
 #generate_next_allocation_grid(c(0.40,0.06,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0),0.04,0.04)
 #Export in a RData file type to Documents
-optimal_allocations_kmeans_ESGRestricted_final <- optimal_allocations
-save(optimal_allocations_kmeans_ESGRestricted_final,file='kmeans_ESGRestricted_optimal_allocations.RData')
+optimal_allocations_kmeans_returnOnly <- optimal_allocations
+save(optimal_allocations_kmeans_returnOnly,file='kmeans_returnOnly_optimal_allocations.RData')
 #save(optimal_allocations_simple_returnOnly,file='simple_returnOnly_optimal_allocations_final.RData')
 
 # load('simple_ESGRestricted_optimal_allocations_firstPart.RData')
