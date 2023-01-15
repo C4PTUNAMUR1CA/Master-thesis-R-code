@@ -1080,7 +1080,7 @@ get_CE <- function(opt_allocation,return_list){
 #======== Section 6: Load RData file for specific cluster =================
 
 source('Utility Functions.R')
-
+load('cluster_0_input.RData')
 
 #======== Section 7: Data cleaning and preparation =================
 
@@ -1202,7 +1202,9 @@ total_Allocation_count <- nrow(all_allocations)
 #rownames(all_allocations) <- NULL
 #Run the optimisation over the base case dataset
 
+
 for (i in 1:8){
+  print(paste('we are at iteration ',as.character(i),sep=''))
   if (i==1){
     load('cluster_0_input.RData')
     ESG_constraint <- F
@@ -1238,14 +1240,13 @@ for (i in 1:8){
     ESG_constraint <- F
     output_file_name <- "kmeans_returnOnly_optimal_allocations_v3.RData"
     increment_level <- 0.06
-  } else if (i==8) {
+  } else {
     load('cluster_0_input_kmeans.RData')
     ESG_constraint <- T
     output_file_name <- "kmeans_ESGRestricted_optimal_allocations_v3.RData"
     increment_level <- 0.06
   }
   
-  print(paste('WE ARE AT ITERATION:',i,sep=''))
   if (hyperParm_tuning){
     optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
                                                       ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000,increment_level)
