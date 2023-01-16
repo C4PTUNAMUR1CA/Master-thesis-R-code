@@ -470,7 +470,6 @@ generate_next_allocation_grid_v2 <- function(current_allocation,increment_value,
 
 # round(sum(c(0.46,0.0,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0)),2)
 # generate_next_allocation_grid(c(0.46,0.0,0.06,0.16,0.00,0.4,0.0,0.0,0.0,0.0,0.0),0.04,0.04)
-
 generate_next_allocation_grid <- function(current_allocation,increment_value,width_length){
   #This function generated a new allocation grid
   #Inputs:
@@ -482,15 +481,20 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,wid
   allocations_assets <- list()
   for (asset in 1:length(current_allocation)){
     if (asset<=2){
+      
       allocations_assets[[asset]] <- round(seq(current_allocation[asset]-(2*width_length),current_allocation[asset],by=increment_value),2)
+      allocations_assets[[asset]] <- allocations_assets[[asset]][allocations_assets[[asset]]>=0]
     } else {
       if (round(current_allocation[asset],2)<=width_length) {
         allocations_assets[[asset]] <- round(seq(current_allocation[asset],current_allocation[asset]+(2*width_length),by=increment_value),2)
+        allocations_assets[[asset]] <- allocations_assets[[asset]][allocations_assets[[asset]]>=0]
         #allocations_assets[[asset]] <- round(seq(0,(2*width_length),by=increment_value),2)
       } else if (round(current_allocation[asset],2)<=(1-width_length)){
         allocations_assets[[asset]] <- round(seq(current_allocation[asset]-width_length,current_allocation[asset]+width_length,by=increment_value),2)
+        allocations_assets[[asset]] <- allocations_assets[[asset]][allocations_assets[[asset]]>=0]
       } else {
         allocations_assets[[asset]] <- round(seq((current_allocation[asset]-(2*width_length)),current_allocation[asset],by=increment_value),2)
+        allocations_assets[[asset]] <- allocations_assets[[asset]][allocations_assets[[asset]]>=0]
       }
     }
   }

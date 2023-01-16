@@ -91,7 +91,10 @@ allocations_graphs_equitySummed(oneOverN_allocation,horizons)
 
 #=============== Section 4: Optimal asset allocations for return-only and simple sorting ==========================================
 
-load('simple_returnOnly_optimal_allocations_final.RData')
+load('simple_returnOnly_optimal_allocations_v2.RData')
+optimal_allocations_simple_returnOnly <- optimal_allocations
+
+df <- optimal_allocations_simple_returnOnly[['Dynamic']][[15]]
 
 #plots for the Dynamic asset allocation
 horizons=1:15
