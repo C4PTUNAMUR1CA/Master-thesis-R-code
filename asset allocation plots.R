@@ -64,6 +64,23 @@ assets <- c( "Tbill_return","Tnote_return","corBond_return",
              "cluster_return_4","cluster_return_5","cluster_return_6",
              "cluster_return_7","cluster_return_8")
 
+obtain_final_period_allocation_per_horizon <- function(allocations_list,inv_strategy){
+  
+  num_assets <- ncol(allocations_list[[inv_strategy]][[1]])
+  
+  final_allocation_df <- as.data.frame(matrix(0,nrow=15,ncol=num_assets))
+  
+  allocations_strat <- allocations_list[[inv_strategy]]
+  for (horizon in 1:15){
+    num_rows <- nrow(allocations_strat[[horizon]])
+    print(num_rows)
+    print(allocations_strat[[horizon]][num_rows,])
+    final_allocation_df[horizon,] <- allocations_strat[[horizon]][num_rows,]
+  }
+  
+  return(final_allocation_df)
+}
+
 #=============== Section 3: 1 over N allocation, with equal weight across asset classes ========
 
 bond_allocations <- as.data.frame(matrix(round(1/4,2),nrow=15,ncol=3))
@@ -93,64 +110,70 @@ allocations_graphs_equitySummed(oneOverN_allocation,horizons)
 
 load('simple_returnOnly_optimal_allocations_v2.RData')
 optimal_allocations_simple_returnOnly <- optimal_allocations
-
-df <- optimal_allocations_simple_returnOnly[['Dynamic']][[15]]
-
-#plots for the Dynamic asset allocation
-horizons=1:15
-allocations_graphs(optimal_allocations_simple_returnOnly[['Dynamic']][[15]],horizons)
-
-#plots for the Dynamic asset allocation with equity summed
-horizons=1:15
-allocations_graphs_equitySummed(optimal_allocations_simple_returnOnly[['Dynamic']][[15]],horizons)
+optimal_allocations_simple_returnOnly_dynamic <- obtain_final_period_allocation_per_horizon(optimal_allocations_simple_returnOnly,'Dynamic')
+optimal_allocations_simple_returnOnly_buyHold <- obtain_final_period_allocation_per_horizon(optimal_allocations_simple_returnOnly,'BuyHold')
 
 #plots for the Dynamic asset allocation
 horizons=1:15
-allocations_graphs(optimal_allocations_simple_returnOnly[['BuyHold']][[15]],horizons)
+allocations_graphs(optimal_allocations_simple_returnOnly_dynamic,horizons)
 
 #plots for the Dynamic asset allocation with equity summed
 horizons=1:15
-allocations_graphs_equitySummed(optimal_allocations_simple_returnOnly[['BuyHold']][[15]],horizons)
+allocations_graphs_equitySummed(optimal_allocations_simple_returnOnly_dynamic,horizons)
+
+#plots for the Dynamic asset allocation
+horizons=1:15
+allocations_graphs(optimal_allocations_simple_returnOnly_buyHold,horizons)
+
+#plots for the Dynamic asset allocation with equity summed
+horizons=1:15
+allocations_graphs_equitySummed(optimal_allocations_simple_returnOnly_buyHold,horizons)
 
 #=============== Section 5: Optimal asset allocations with ESG restriction and simple sorting ==========================================
 
 load('simple_ESGRestricted_optimal_allocations.RData')
+optimal_allocations_simple_ESGRestricted <- optimal_allocations
+optimal_allocations_simple_ESGRestricted_dynamic <- obtain_final_period_allocation_per_horizon(optimal_allocations_simple_ESGRestricted,'Dynamic')
+optimal_allocations_simple_ESGRestricted_buyHold <- obtain_final_period_allocation_per_horizon(optimal_allocations_simple_ESGRestricted,'BuyHold')
 
 #plots for the Dynamic asset allocation
 horizons=1:15
-allocations_graphs(optimal_allocations_simple_ESGRestricted[['Dynamic']][[15]],horizons)
+allocations_graphs(optimal_allocations_simple_ESGRestricted_dynamic,horizons)
 
 #plots for the Dynamic asset allocation with equity summed
 horizons=1:15
-allocations_graphs_equitySummed(optimal_allocations_simple_ESGRestricted[['Dynamic']][[15]],horizons)
+allocations_graphs_equitySummed(optimal_allocations_simple_ESGRestricted_dynamic,horizons)
 
 #plots for the Dynamic asset allocation
 horizons=1:15
-allocations_graphs(optimal_allocations_simple_ESGRestricted[['BuyHold']][[15]],horizons)
+allocations_graphs(optimal_allocations_simple_ESGRestricted_buyHold,horizons)
 
 #plots for the Dynamic asset allocation with equity summed
 horizons=1:15
-allocations_graphs_equitySummed(optimal_allocations_simple_ESGRestricted[['BuyHold']][[15]],horizons)
+allocations_graphs_equitySummed(optimal_allocations_simple_ESGRestricted_buyHold,horizons)
 
 #=============== Section 6: Optimal asset allocations with ESG restriction and kmeans sorting ==========================================
 
 load('kmeans_ESGRestricted_optimal_allocations.RData')
+optimal_allocations_kmeans_ESGRestricted <- optimal_allocations
+optimal_allocations_kmeans_ESGRestricted_dynamic <- obtain_final_period_allocation_per_horizon(optimal_allocations_kmeans_ESGRestricted,'Dynamic')
+optimal_allocations_kmeans_ESGRestricted_buyHold <- obtain_final_period_allocation_per_horizon(optimal_allocations_kmeans_ESGRestricted,'BuyHold')
 
 #plots for the Dynamic asset allocation
 horizons=1:15
-allocations_graphs(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[15]],horizons)
+allocations_graphs(optimal_allocations_kmeans_ESGRestricted_dynamic,horizons)
 
 #plots for the Dynamic asset allocation with equity summed
 horizons=1:15
-allocations_graphs_equitySummed(optimal_allocations_kmeans_ESGRestricted_final[['Dynamic']][[15]],horizons)
+allocations_graphs_equitySummed(optimal_allocations_kmeans_ESGRestricted_dynamic,horizons)
 
 #plots for the Dynamic asset allocation
 horizons=1:15
-allocations_graphs(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[15]],horizons)
+allocations_graphs(optimal_allocations_kmeans_ESGRestricted_buyHold,horizons)
 
 #plots for the Dynamic asset allocation with equity summed
 horizons=1:15
-allocations_graphs_equitySummed(optimal_allocations_kmeans_ESGRestricted_final[['BuyHold']][[15]],horizons)
+allocations_graphs_equitySummed(optimal_allocations_kmeans_ESGRestricted_buyHold,horizons)
 
 #=============== Section 6: Optimal asset allocations with return only and kmeans sorting ==========================================
 
