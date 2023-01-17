@@ -43,8 +43,8 @@ library(MASS)
 
 #======== Section 1: Load required dataset here =================
 
-file_str_esg_score <- "kmeans_final_esgScore_cluster"
-simulation_file_name <- "kmeans_simulation10000_cluster_0"
+file_str_esg_score <- "simple_final_esgScore_cluster"
+simulation_file_name <- "simple_simulation10000_normalReturns_cluster_0"
 
 #======== Section 2: Specify the settings for the script =================
 
@@ -76,7 +76,7 @@ which_complexity = 1
 #Choose whether you want to ESG-restrict the optimal asset allocation
 ESG_constraint <- F
 #what is the ESG threshold you want to apply?
-ESG_threshold <- 50
+ESG_threshold <- 65
 #what is the risk preference of the investor, defined by gamma?
 gamma <- 5
 
@@ -202,9 +202,9 @@ for (i in 0:6){
   final_esg_score <- final_esg_score[,2:ncol(final_esg_score)]
   final_esg_score_list[[as.character(i)]] <- final_esg_score
 }
- 
-#monthly_return_var_list <- obtain_return_variables(simulation_file_name)
-#monthly_state_var_list <- obtain_state_variables(simulation_file_name)
+
+monthly_return_var_list <- obtain_return_variables(simulation_file_name)
+monthly_state_var_list <- obtain_state_variables(simulation_file_name)
 # save(monthly_return_var_list,file="C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/monthly_return_var_list_simple.RData")
 # save(monthly_state_var_list,file="C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/monthly_state_var_list_simple.RData")
 
@@ -266,22 +266,22 @@ for (var_name in names(monthly_state_var_list)){
 
 # generate a training and test split among the 10000 scenarios
 # an 80/20% training/testing split is performed
-# training_subset <- sort(sample(nrow(return_var_list$return_variable_1), nrow(return_var_list$return_variable_1)*train_ratio))
-# 
-# return_var_train_list <- list()
-# return_var_test_list <- list()
-# state_var_train_list <- list()
-# state_var_test_list <- list()
-# 
-# for (var_name in names(return_var_list)){
-#   return_var_train_list[[var_name]] <- return_var_list[[var_name]][training_subset,]
-#   return_var_test_list[[var_name]] <- return_var_list[[var_name]][-training_subset,]
-# }
-# 
-# for (var_name in names(state_var_list)){
-#   state_var_train_list[[var_name]] <- state_var_list[[var_name]][training_subset,]
-#   state_var_test_list[[var_name]] <- state_var_list[[var_name]][-training_subset,]
-# }
+training_subset <- sort(sample(nrow(return_var_list$return_variable_1), nrow(return_var_list$return_variable_1)*train_ratio))
+
+return_var_train_list <- list()
+return_var_test_list <- list()
+state_var_train_list <- list()
+state_var_test_list <- list()
+
+for (var_name in names(return_var_list)){
+  return_var_train_list[[var_name]] <- return_var_list[[var_name]][training_subset,]
+  return_var_test_list[[var_name]] <- return_var_list[[var_name]][-training_subset,]
+}
+
+for (var_name in names(state_var_list)){
+  state_var_train_list[[var_name]] <- state_var_list[[var_name]][training_subset,]
+  state_var_test_list[[var_name]] <- state_var_list[[var_name]][-training_subset,]
+}
 
 #to keep the training and test set the same, we use stored RData files for the above
 #save(return_var_train_list,file="C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/return_var_train_list_simple.RData")
@@ -290,11 +290,11 @@ for (var_name in names(monthly_state_var_list)){
 #save(state_var_test_list,file="C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/state_var_test_list_simple.RData")
 
 #load the training and testing sets
-load("return_var_train_list_kmeans.RData")
-load("return_var_test_list_kmeans.RData")
-load("state_var_train_list_kmeans.RData")
-load("state_var_test_list_kmeans.RData")
+# load("return_var_train_list_kmeans.RData")
+# load("return_var_test_list_kmeans.RData")
+# load("state_var_train_list_kmeans.RData")
+# load("state_var_test_list_kmeans.RData")
 
 #======== Section 7: Create the RData file for the numerical model =================
 
-save.image(file='cluster_0_input_kmeans.RData')
+save.image(file='cluster_0_input_normalReturns_simple.RData')
