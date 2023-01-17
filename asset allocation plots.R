@@ -73,8 +73,6 @@ obtain_final_period_allocation_per_horizon <- function(allocations_list,inv_stra
   allocations_strat <- allocations_list[[inv_strategy]]
   for (horizon in 1:15){
     num_rows <- nrow(allocations_strat[[horizon]])
-    print(num_rows)
-    print(allocations_strat[[horizon]][num_rows,])
     final_allocation_df[horizon,] <- allocations_strat[[horizon]][num_rows,]
   }
   
