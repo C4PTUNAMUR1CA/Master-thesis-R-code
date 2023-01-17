@@ -1210,42 +1210,42 @@ total_Allocation_count <- nrow(all_allocations)
 for (i in 1:8){
   print(paste('we are at iteration ',as.character(i),sep=''))
   if (i==1){
-    load('cluster_0_input.RData')
+    load('cluster_0_input_normalReturns_simple.RData')
     ESG_constraint <- F
     output_file_name <- "simple_returnOnly_optimal_allocations_v2.RData"
     increment_level <- 0.04
   } else if (i==2){
-    load('cluster_0_input.RData')
+    load('cluster_0_input_normalReturns_simple.RData')
     ESG_constraint <- T
     output_file_name <- "simple_ESGRestricted_optimal_allocations_v2.RData"
     increment_level <- 0.04
   } else if (i==3){
-    load('cluster_0_input_kmeans.RData')
+    load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- F
     output_file_name <- "kmeans_returnOnly_optimal_allocations_v2.RData"
     increment_level <- 0.04
   } else if (i==4) {
-    load('cluster_0_input_kmeans.RData')
+    load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
     output_file_name <- "kmeans_ESGRestricted_optimal_allocations_v2.RData"
     increment_level <- 0.04
   } else if (i==5) {
-    load('cluster_0_input.RData')
+    load('cluster_0_input_normalReturns_simple.RData')
     ESG_constraint <- F
     output_file_name <- "simple_returnOnly_optimal_allocations_v3.RData"
     increment_level <- 0.06
   } else if (i==6) {
-    load('cluster_0_input.RData')
+    load('cluster_0_input_normalReturns_simple.RData')
     ESG_constraint <- T
     output_file_name <- "simple_ESGRestricted_optimal_allocations_v3.RData"
     increment_level <- 0.06
   } else if (i==7) {
-    load('cluster_0_input_kmeans.RData')
+    load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- F
     output_file_name <- "kmeans_returnOnly_optimal_allocations_v3.RData"
     increment_level <- 0.06
   } else {
-    load('cluster_0_input_kmeans.RData')
+    load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
     output_file_name <- "kmeans_ESGRestricted_optimal_allocations_v3.RData"
     increment_level <- 0.06
