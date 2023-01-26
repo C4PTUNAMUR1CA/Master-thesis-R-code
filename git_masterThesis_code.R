@@ -642,9 +642,6 @@ limit_allocation_byEquitySum <- function(allocations,equity_sum){
   return(new_allocations)
 }
 
-generate_next_allocation_grid(optimal_allocations_simple_ESGRestricted_dynamic[12,1:11],0.04,0.04,
-                              sum(optimal_allocations_simple_ESGRestricted_dynamic[12,4:11]))
-
 #allocation_test <- generate_next_allocation_grid(matrix(c(0.1,0.2,0.3,0,0,0,0,0.1,0,0.1,0.2),nrow=1,ncol=11),0.04,0.04)
 ESG_restrict_allocations <- function(all_allocations,ESG_scores,ESG_threshold,
                                      env_weight,soc_weight,gov_weight){
@@ -1038,7 +1035,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
         
         #enforce that equity allocation will grow as horizon increases
         if (horizon>2){
-          equity_allocation_previous_horizon <- round(sum(allocations_BuyHold_horizons[[horizon]][,4:11]),2)
+          equity_allocation_previous_horizon <- round(sum(allocations_BuyHold_horizons[[(horizon-1)]][,4:11]),2)
           all_allocations_BuyHold <- limit_allocation_byEquitySum(all_allocations_BuyHold,
                                                                   equity_allocation_previous_horizon)
         }
@@ -1064,7 +1061,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
         #REPEAT HERE TO FIND OPTIMAL ALLOCATION AROUND THE OTHER OPTIMAL ALLOCATION
         #enforce that equity allocation will grow as horizon increases
         if (horizon>2){
-          equity_allocation_previous_horizon <- round(sum(allocations_BuyHold_horizons[[horizon]][,4:11]),2)
+          equity_allocation_previous_horizon <- round(sum(allocations_BuyHold_horizons[[(horizon-1)]][,4:11]),2)
           all_allocations_buyHold <- generate_next_allocation_grid_v3(all_allocations_BuyHold[max_finalUtility_rowIndex_buyHold,],incr_value,incr_value,equity_allocation_previous_horizon)
         } else {
           all_allocations_buyHold <- generate_next_allocation_grid_v2(all_allocations_BuyHold[max_finalUtility_rowIndex_buyHold,],incr_value,incr_value)
@@ -1320,7 +1317,7 @@ total_Allocation_count <- nrow(all_allocations)
 #Run the optimisation over the base case dataset
 
 
-for (i in 1:8){
+for (i in 8:8){
   print(paste('we are at iteration ',as.character(i),sep=''))
   if (i==1){
     load('cluster_0_input_normalReturns_simple.RData')
