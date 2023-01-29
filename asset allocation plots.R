@@ -152,7 +152,7 @@ allocations_graphs_equitySummed(optimal_allocations_simple_ESGRestricted_buyHold
 
 #=============== Section 6: Optimal asset allocations with ESG restriction and kmeans sorting ==========================================
 
-load('kmeans_ESGRestricted_optimal_allocations_v2.RData')
+load('kmeans_ESGRestricted_optimal_allocations_v7.RData')
 optimal_allocations_kmeans_ESGRestricted <- optimal_allocations
 optimal_allocations_kmeans_ESGRestricted_dynamic <- obtain_final_period_allocation_per_horizon(optimal_allocations_kmeans_ESGRestricted,'Dynamic')
 optimal_allocations_kmeans_ESGRestricted_buyHold <- obtain_final_period_allocation_per_horizon(optimal_allocations_kmeans_ESGRestricted,'BuyHold')
@@ -175,3 +175,4 @@ allocations_graphs_equitySummed(optimal_allocations_kmeans_ESGRestricted_buyHold
 
 #=============== Section 6: Optimal asset allocations with return only and kmeans sorting ==========================================
 
+df <- optimal_allocations[['Dynamic']][[15]]

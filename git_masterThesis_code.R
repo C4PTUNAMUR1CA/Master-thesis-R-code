@@ -399,7 +399,7 @@ limit_allocations <- function(all_allocations,current_allocation){
 }
 
 generate_next_allocation_grid_v3 <- function(current_allocation,increment_value,
-                                             width_length,equity_sum){
+                                             width_length,equity_sum,equal_or_greater){
   #This function generated a new allocation grid
   #Inputs:
   #current_allocation: is the current asset allocation around which you want to build the portfolio grid from
@@ -412,11 +412,14 @@ generate_next_allocation_grid_v3 <- function(current_allocation,increment_value,
   allocations_assets <- list()
   for (asset in 1:length(current_allocation)){
     if (round(current_allocation[,asset],2)<=width_length) {
-      allocations_assets[[asset]] <- seq(current_allocation[,asset],(2*width_length),by=increment_value)
+      allocations_assets[[asset]] <- seq(current_allocation[,asset],current_allocation[,asset]+(2*width_length),by=increment_value)
+      allocations_assets[[asset]] <- allocations_assets[[asset]][allocations_assets[[asset]]>=0]
     } else if (round(current_allocation[,asset],2)<=(1-width_length)){
       allocations_assets[[asset]] <- seq(current_allocation[,asset]-width_length,current_allocation[,asset]+width_length,by=increment_value)
+      allocations_assets[[asset]] <- allocations_assets[[asset]][allocations_assets[[asset]]>=0]
     } else {
-      allocations_assets[[asset]] <- seq((1-(2*width_length)),1,by=increment_value)
+      allocations_assets[[asset]] <- seq((current_allocation[,asset]-(2*width_length)),current_allocation[,asset],by=increment_value)
+      allocations_assets[[asset]] <- allocations_assets[[asset]][allocations_assets[[asset]]>=0]
     }
   }
   
@@ -467,7 +470,11 @@ generate_next_allocation_grid_v3 <- function(current_allocation,increment_value,
   names(all_allocations) <- assets
   
   all_allocations[,'sum equity'] <- apply(all_allocations[,4:11],1,sum)
-  all_allocations <- all_allocations[all_allocations[,'sum equity']>=equity_sum,]
+  if (equal_or_greater){
+    all_allocations <- all_allocations[round(all_allocations[,'sum equity'],2)>=equity_sum,]
+  } else {
+    all_allocations <- all_allocations[round(all_allocations[,'sum equity'],2)>equity_sum,]
+  }
   all_allocations <- all_allocations[,1:11]
   rownames(all_allocations) <- NULL
   
@@ -482,17 +489,18 @@ generate_next_allocation_grid_v2 <- function(current_allocation,increment_value,
   #increment_value: by what increment the portfolio weights can increase or decrease
   #width_length: the maximum increase or decrease of a particular portfolio weights between two neighboring periods
   
-  #ADD A TRYCATCH FUNCTION HERE
-  
   #Generate here the possible portfolio weights per asset, given its current portfolio weight in current_allocation
   allocations_assets <- list()
   for (asset in 1:length(current_allocation)){
     if (round(current_allocation[,asset],2)<=width_length) {
-      allocations_assets[[asset]] <- seq(current_allocation[,asset],(2*width_length),by=increment_value)
+      allocations_assets[[asset]] <- seq(current_allocation[,asset],current_allocation[,asset]+(2*width_length),by=increment_value)
+      allocations_assets[[asset]] <- allocations_assets[[asset]][allocations_assets[[asset]]>=0]
     } else if (round(current_allocation[,asset],2)<=(1-width_length)){
       allocations_assets[[asset]] <- seq(current_allocation[,asset]-width_length,current_allocation[,asset]+width_length,by=increment_value)
+      allocations_assets[[asset]] <- allocations_assets[[asset]][allocations_assets[[asset]]>=0]
     } else {
-      allocations_assets[[asset]] <- seq((1-(2*width_length)),1,by=increment_value)
+      allocations_assets[[asset]] <- seq((current_allocation[,asset]-(2*width_length)),current_allocation[,asset],by=increment_value)
+      allocations_assets[[asset]] <- allocations_assets[[asset]][allocations_assets[[asset]]>=0]
     }
   }
   
@@ -549,7 +557,7 @@ generate_next_allocation_grid_v2 <- function(current_allocation,increment_value,
 # round(sum(c(0.46,0.0,0.02,0.12,0.00,0.4,0.0,0.0,0.0,0.0,0.0)),2)
 # generate_next_allocation_grid(c(0.46,0.0,0.06,0.16,0.00,0.4,0.0,0.0,0.0,0.0,0.0),0.04,0.04)
 generate_next_allocation_grid <- function(current_allocation,increment_value,
-                                          width_length,equity_allocation_previous_period){
+                                          width_length,equity_allocation_previous_period,equal_or_greater){
   #This function generated a new allocation grid
   #Inputs:
   #current_allocation: is the current asset allocation around which you want to build the portfolio grid from
@@ -624,18 +632,26 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,
   names(all_allocations) <- assets
   
   all_allocations[,'sum equity'] <- apply(all_allocations[,4:11],1,sum)
-  all_allocations <- all_allocations[all_allocations[,'sum equity']>=equity_allocation_previous_period,]
+  if (equal_or_greater){
+    all_allocations <- all_allocations[round(all_allocations[,'sum equity'],2)>=equity_allocation_previous_period,]
+  } else {
+    all_allocations <- all_allocations[round(all_allocations[,'sum equity'],2)>equity_allocation_previous_period,]
+  }
   all_allocations <- all_allocations[,1:11]
   rownames(all_allocations) <- NULL
   
   return(all_allocations)
 }
 
-limit_allocation_byEquitySum <- function(allocations,equity_sum){
+limit_allocation_byEquitySum <- function(allocations,equity_sum,equal_or_greater){
   new_allocations <- allocations
   
   new_allocations[,'sum equity'] <- apply(new_allocations[,4:11],1,sum)
-  new_allocations <- new_allocations[new_allocations[,'sum equity']>=equity_sum,]
+  if (equal_or_greater){
+    new_allocations <- new_allocations[new_allocations[,'sum equity']>=equity_sum,]
+  } else {
+    new_allocations <- new_allocations[new_allocations[,'sum equity']>equity_sum,]
+  }
   new_allocations <- new_allocations[,1:11]
   rownames(new_allocations) <- NULL
   
@@ -1032,12 +1048,13 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
       }
       if (period==1){
         #need to create here for Buy&Hold investor
-        
+        all_allocations_BuyHold <- all_allocations
         #enforce that equity allocation will grow as horizon increases
         if (horizon>2){
-          equity_allocation_previous_horizon <- round(sum(allocations_BuyHold_horizons[[(horizon-1)]][,4:11]),2)
+          print(paste('equity sum of previous horizon is ',round(sum(allocations_BuyHold_horizons[[(horizon-1)]][1,4:11]),2),sep=''))
+          equity_allocation_previous_horizon <- round(sum(allocations_BuyHold_horizons[[(horizon-1)]][1,4:11]),2)
           all_allocations_BuyHold <- limit_allocation_byEquitySum(all_allocations_BuyHold,
-                                                                  equity_allocation_previous_horizon)
+                                                                  equity_allocation_previous_horizon,T)
         }
         
         #by first obtaining cumulative returns
@@ -1061,7 +1078,7 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
         #REPEAT HERE TO FIND OPTIMAL ALLOCATION AROUND THE OTHER OPTIMAL ALLOCATION
         #enforce that equity allocation will grow as horizon increases
         if (horizon>2){
-          equity_allocation_previous_horizon <- round(sum(allocations_BuyHold_horizons[[(horizon-1)]][,4:11]),2)
+          equity_allocation_previous_horizon <- round(sum(allocations_BuyHold_horizons[[(horizon-1)]][1,4:11]),2)
           all_allocations_buyHold <- generate_next_allocation_grid_v3(all_allocations_BuyHold[max_finalUtility_rowIndex_buyHold,],incr_value,incr_value,equity_allocation_previous_horizon)
         } else {
           all_allocations_buyHold <- generate_next_allocation_grid_v2(all_allocations_BuyHold[max_finalUtility_rowIndex_buyHold,],incr_value,incr_value)
@@ -1126,6 +1143,317 @@ get_optimal_allocation <- function(return_var_list,state_var_list,all_allocation
       }
       equity_allocation_prev_period <- sum(allocations_dynamic[period,4:ncol(allocations_dynamic)])
       all_allocations_dynamic <- generate_next_allocation_grid(allocations_dynamic[period,],incr_value,incr_value,equity_allocation_prev_period)
+      # if ((horizon==3)&(period==3)){
+      #   return(all_allocations_dynamic)
+      # }
+      #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
+      if (ESG_constraint){
+        all_allocations_dynamic <- ESG_restrict_allocations(all_allocations_dynamic,ESG_scores,ESG_threshold,
+                                                            env_weight,soc_weight,gov_weight)
+      }
+    }
+    
+    #Store the optimal allocations over all periods for the specific gamma in the list
+    if (horizon==2){
+      allocations_dynamic_horizons[[1]] <- as.data.frame(allocations_dynamic)
+      allocations_BuyHold_horizons[[1]] <- as.data.frame(allocations_buyHold)
+      allocations_dynamic_horizons[[horizon]] <- as.data.frame(allocations_dynamic)
+      allocations_BuyHold_horizons[[horizon]] <- as.data.frame(allocations_buyHold)
+    } else {
+      allocations_dynamic_horizons[[horizon]] <- as.data.frame(allocations_dynamic)
+      allocations_BuyHold_horizons[[horizon]] <- as.data.frame(allocations_buyHold)
+    }
+  }
+  if (hyperParm_tuning){
+    return(optimal_hyperparameters)
+  } else {
+    if (investment_strategy=='Dynamic'){
+      allocations_dynamic_buyhold <- list()
+      allocations_dynamic_buyhold[['Dynamic']] <- allocations_dynamic_horizons
+      allocations_dynamic_buyhold[['BuyHold']] <- allocations_BuyHold_horizons
+      return(allocations_dynamic_buyhold)
+    } else if (investment_strategy=='Myopic'){
+      return(allocations_myopic_horizons)
+    } else {
+      return(allocations_BuyHold_horizons)
+    }
+  }
+}
+
+get_optimal_allocation_v2 <- function(return_var_list,state_var_list,all_allocations,ESG_constraint,ESG_scores,
+                                   ESG_threshold,env_weight,soc_weight,gov_weight,subset_size,incr_value){
+  #Returns the optimal allocation for a dynamic, myopic and Buy&Hold portfolio
+  #But if HyperParm_tuning is True, then it returns the optimal hyperparameters for the ML model, per period
+  
+  #Define lists to store the optimal allocations, for every investment strategy, for all gammas
+  allocations_dynamic_horizons <- list()
+  allocations_myopic_horizons <- list()
+  allocations_BuyHold_horizons <- list()
+  
+  #loop over all horizons, to find the optimal asset allocation per forecasting horizon
+  for (horizon in 2:max_horizon){
+    print(paste('horizon_',horizon,sep=''))
+    
+    #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
+    if (ESG_constraint){
+      all_allocations <- ESG_restrict_allocations(all_allocations,ESG_scores,ESG_threshold,
+                                                  env_weight,soc_weight,gov_weight)
+    }
+    
+    #Reset the possible allocation for both dynamic and myopic strategy
+    all_allocations_dynamic <- all_allocations
+    all_allocations_BuyHold <- all_allocations
+    
+    #list that will store for every period, the optimal portfolio allocations and its corresponding utility, over all scenarios
+    #Only relevant for the Dynamic asset allocation
+    period_list <- list()
+    
+    #loop over all the periods backwards, since it is a backward recursion algorithm
+    if (horizon==1){
+      current_max_horizon <- 2
+    }else{
+      current_max_horizon <- horizon
+    }
+    
+    #these matrices will store the optimal asset allocations per period, per investment strategy
+    allocations_dynamic <- matrix(0,nrow=current_max_horizon,ncol=length(assets))
+    colnames(allocations_dynamic) <- assets
+    allocations_buyHold <- matrix(0,nrow=current_max_horizon,ncol=length(assets))
+    colnames(allocations_buyHold) <- assets
+    
+    for (period in (current_max_horizon):1){
+      
+      iteration <- 1
+      print(paste('Period:',as.character(period),sep=' '))
+      
+      #These matrices collect the expected utilities in the final periods, to calculate the across-path mean
+      final_expected_utility_dynamic <- matrix(0,nrow=nrow(all_allocations_dynamic),ncol=1)
+      if (period>1){
+        
+        # Given that the number of allocations are enormous, we have to work with subsets of the full allocation grid
+        # This finds how many subsets with (subset_size) allocations are to be found in the grid, while also finding the number
+        # of allocations in the last subset
+        print(paste('Grid size is ',nrow(all_allocations_dynamic),sep=''))
+        full_subsets <- floor(nrow(all_allocations_dynamic)/subset_size)
+        last_subset_size <- nrow(all_allocations_dynamic)%%subset_size
+        
+        for (subset in 1:(full_subsets+1)){
+          print(paste('Entered subset number ',as.character(subset),sep=''))
+          print(Sys.time())
+          if (subset<(full_subsets+1)){
+            current_allocation_subset <- all_allocations_dynamic[(1+subset_size*(subset-1)):(subset_size*(subset)),]
+          } else {
+            current_allocation_subset <- all_allocations_dynamic[(1+subset_size*(subset-1)):(nrow(all_allocations_dynamic)),]
+          }
+          rownames(current_allocation_subset) <- NULL
+          #return(current_allocation_subset)
+          
+          cl <- parallel::makeCluster(detectCores())
+          doParallel::registerDoParallel(cl)
+          utility_over_allocations_dynamic_list <- foreach(iteration=1:nrow(current_allocation_subset),.packages='testPack2') %dopar% {
+            
+            utility_all_scenarios_dynamic <- vector_utility_calculation(current_allocation_subset[iteration,],
+                                                                        return_var_list,
+                                                                        gamma,
+                                                                        period,(current_max_horizon),
+                                                                        period_list)
+            across_path_df <- list()
+            across_path_df[['y']] <- utility_all_scenarios_dynamic
+            
+            for (state_var in names(state_var_list)){
+              #Create state variables
+              current_state_var <- state_var_list[[state_var]][,(period-1)]
+              across_path_df[[state_var]] <- current_state_var
+            }
+            across_path_df <- as.data.frame(do.call(cbind,across_path_df))
+            colnames(across_path_df)[1] <- 'y'
+            fitted_utility <- OLS_fittedValue(across_path_df)
+            
+            append(fitted_utility,mean(across_path_df$y))
+          }
+          parallel::stopCluster(cl)
+          
+          utility_over_allocations_dynamic_list <- do.call(rbind,utility_over_allocations_dynamic_list)
+          
+          if (subset<(full_subsets+1)){
+            final_expected_utility_dynamic[((1+subset_size*(subset-1)):(subset_size*(subset))),1] <- utility_over_allocations_dynamic_list[,ncol(utility_over_allocations_dynamic_list)]
+          } else {
+            final_expected_utility_dynamic[((1+subset_size*(subset-1)):(nrow(all_allocations_dynamic))),1] <- utility_over_allocations_dynamic_list[,ncol(utility_over_allocations_dynamic_list)]
+          }
+          utility_over_allocations_dynamic <- utility_over_allocations_dynamic_list[,(1:(ncol(utility_over_allocations_dynamic_list)-1))]
+          
+          #Obtain the allocation which has the highest utility, for each scenario
+          max_utility_rowIndex_perScenario_dynamic <- unlist(mclapply(1:ncol(utility_over_allocations_dynamic),find_max_index,utility_over_allocations_dynamic))
+          #Extract these allocations from the matrix with all possible allocations for every scenario
+          max_utility_perScenario_dynamic <- unlist(mclapply(1:ncol(utility_over_allocations_dynamic),find_max,utility_over_allocations_dynamic))
+          #NEED TO COME UP WITH A COMPARISON TOOL BETWEEN SUBSETS AND THE MAXIMUM UTILITY
+          optimal_allocations_perScenario_dynamic <- current_allocation_subset[max_utility_rowIndex_perScenario_dynamic,]
+          #Reset the index of the matrix
+          row.names(optimal_allocations_perScenario_dynamic) <- NULL
+          
+          if (subset==1){
+            #Within the first subset, just store the maximum utility and the corresponding optimal asset allocation
+            current_total_max_utility_perScenario_dynamic <- max_utility_perScenario_dynamic
+            current_total_opt_allocation_perScenario_dynamic <- optimal_allocations_perScenario_dynamic
+          } else {
+            #from the second subset onwards, we need to find the max utility and thus the max optimal allocation across the subsets
+            
+            #combine the maximum utility per scenario of the current subset with the best utility per scenario across the previous subsets
+            #this is a 2x#scenarios matrix
+            current_total_max_utility_perScenario_dynamic <- rbind(current_total_max_utility_perScenario_dynamic,max_utility_perScenario_dynamic)
+            rownames(current_total_max_utility_perScenario_dynamic) <- NULL
+            
+            #find the index (so either row index 1 or 2) per scenario which has the highest utility
+            total_max_utility_rowIndex_perScenario_dynamic <- apply(current_total_max_utility_perScenario_dynamic,2,function(x) which(x==max(x))[1])
+            
+            #combine the optimal allocation per scenario of the current subset with the optimal allocation per scenarios across the previous subsets
+            #With this combined, this becomes a #scenariosx(2*#assets) matrix
+            current_total_opt_allocation_perScenario_dynamic <- cbind(current_total_opt_allocation_perScenario_dynamic,optimal_allocations_perScenario_dynamic)
+            rownames(current_total_opt_allocation_perScenario_dynamic) <- NULL
+            #create a new column in this matrix which shows which index gives the maximum utility per scenario, from current_total_max_utility_perScenario_dynamic
+            current_total_opt_allocation_perScenario_dynamic <- cbind(current_total_opt_allocation_perScenario_dynamic,total_max_utility_rowIndex_perScenario_dynamic)
+            
+            #the idea is that if for a particular scenario the utility is maximal for the first row index, then choose the first (#assets) columns as the optimal asset allocation
+            #if the utility is maximal at the second row index, then choose the second (#assets) columns as the optimal asset allocation
+            #Given my non-expertise of R, I do this using an ifelse statement and creating additional (#assets) columns at the end of the matrix
+            current_total_opt_allocation_perScenario_dynamic <- cbind(current_total_opt_allocation_perScenario_dynamic,matrix(0,nrow=scenarios_train,ncol=length(assets)))
+            
+            #loop over all the assets and implement the idea of above, using an if else statement, dependent on the max rowIndex column in the matrix
+            for (asset in 1:length(assets)){
+              current_total_opt_allocation_perScenario_dynamic[,(length(assets)*2)+1+asset] <- ifelse(current_total_opt_allocation_perScenario_dynamic[,(length(assets)*2)+1]==1,
+                                                                                                      current_total_opt_allocation_perScenario_dynamic[,asset],
+                                                                                                      current_total_opt_allocation_perScenario_dynamic[,length(assets)+asset])
+            }
+            
+            col_number <- ncol(current_total_opt_allocation_perScenario_dynamic)
+            #Extract the last (#assets) columns from current_total_opt_allocation_perScenario_dynamic, because that would be the current optimal asset allocations per scenario
+            current_total_opt_allocation_perScenario_dynamic <- current_total_opt_allocation_perScenario_dynamic[,(col_number-length(assets)+1):col_number]
+            #rename the columns again to the original asset names
+            colnames(current_total_opt_allocation_perScenario_dynamic) <- assets
+          }
+        }
+        
+        #Obtains the row index (thus the optimal portfolio allocation) in each scenario, where the maximum fitted utility is found, for each scenario
+        max_finalUtility_rowIndex_dynamic <- which(final_expected_utility_dynamic==max(final_expected_utility_dynamic))
+        #using the above row indexes, collect the optimal portfolio allocations for each scenario
+        #essentially a dataframe/matrix (# of scenarios)x(# of assets) matrix
+        final_optimal_allocation_dynamic <- all_allocations_dynamic[max_finalUtility_rowIndex_dynamic,]
+        #Reset the index of the matrix
+        row.names(final_optimal_allocation_dynamic) <- NULL
+      }
+      #if you are optimizing in the period for which you want to find the optimal allocation, enter this if statement
+      #if it is the final period of the for loop, use the asset allocation of the period before, because
+      #state variables do not exist in period t-1
+      for (asset in assets){
+        if (period==1){
+          allocations_dynamic[1,asset] <- allocations_dynamic[2,asset]
+        } else {
+          #Store the optimal allocations for that period
+          allocations_dynamic[period,asset] <- final_optimal_allocation_dynamic[1,asset]
+        }
+      }
+      if (period==1){
+        #need to create here for Buy&Hold investor
+        all_allocations_BuyHold <- all_allocations
+        #enforce that equity allocation will grow as horizon increases
+        if (horizon>2){
+          equity_allocation_previous_horizon <- round(sum(allocations_BuyHold_horizons[[(horizon-1)]][1,4:11]),2)
+          if (round(1-equity_allocation_previous_horizon,2)<=round(2*incr_value,2)){
+            all_allocations_BuyHold <- generate_next_allocation_grid_v3(allocations_BuyHold_horizons[[(horizon-1)]][1,],incr_value,incr_value,
+                                                                        equity_allocation_previous_horizon,T)
+          } else {
+            all_allocations_BuyHold <- generate_next_allocation_grid_v3(allocations_BuyHold_horizons[[(horizon-1)]][1,],incr_value,incr_value,
+                                                                        equity_allocation_previous_horizon,F)
+          }
+        } 
+        
+        #by first obtaining cumulative returns
+        list_cumulativeReturns <- cumulative_returns(return_var_list,period,(current_max_horizon))
+        
+        #As the Buy&Hold strategy is only determined at starting_age
+        cl <- parallel::makeCluster(detectCores())
+        doParallel::registerDoParallel(cl)
+        final_expected_utility_buyHold_list <- foreach(iteration=1:nrow(all_allocations_BuyHold),.packages='testPack2') %dopar% {
+          
+          utility_all_scenarios_buyHold <- vector_myopic_utility_calculation(all_allocations_BuyHold[iteration,],
+                                                                             list_cumulativeReturns)
+          
+          mean(utility_all_scenarios_buyHold)
+        }
+        parallel::stopCluster(cl)
+        final_expected_utility_buyHold <- unlist(final_expected_utility_buyHold_list)
+        
+        #repeat above steps, but now for the Buy&Hold portfolio allocation optimization
+        max_finalUtility_rowIndex_buyHold <- which(final_expected_utility_buyHold==max(final_expected_utility_buyHold))
+        #REPEAT HERE TO FIND OPTIMAL ALLOCATION AROUND THE OTHER OPTIMAL ALLOCATION
+        equity_allocation_firstStep <- round(sum(all_allocations_BuyHold[max_finalUtility_rowIndex_buyHold,4:11]),2)
+        #enforce that equity allocation will grow as horizon increases
+        if (horizon>2){
+          equity_allocation_previous_horizon <- round(sum(allocations_BuyHold_horizons[[(horizon-1)]][1,4:11]),2)
+          all_allocations_BuyHold <- generate_next_allocation_grid_v3(all_allocations_BuyHold[max_finalUtility_rowIndex_buyHold,],incr_value,incr_value,
+                                                                      equity_allocation_firstStep,T)
+        } else {
+          all_allocations_BuyHold <- generate_next_allocation_grid_v2(all_allocations_BuyHold[max_finalUtility_rowIndex_buyHold,],incr_value,incr_value)
+        }
+        #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
+        if (ESG_constraint){
+          all_allocations_BuyHold <- ESG_restrict_allocations(all_allocations_BuyHold,ESG_scores,ESG_threshold,
+                                                              env_weight,soc_weight,gov_weight)
+        }
+        
+        cl <- parallel::makeCluster(detectCores())
+        doParallel::registerDoParallel(cl)
+        final_expected_utility_buyHold_list <- foreach(iteration=1:nrow(all_allocations_BuyHold),.packages='testPack2') %dopar% {
+          
+          utility_all_scenarios_buyHold <- vector_myopic_utility_calculation(all_allocations_BuyHold[iteration,],
+                                                                             list_cumulativeReturns)
+          #Obtain the across-path mean of the Buy&Hold utilities
+          mean(utility_all_scenarios_buyHold)
+        }
+        parallel::stopCluster(cl)
+        final_expected_utility_buyHold <- unlist(final_expected_utility_buyHold_list)
+        
+        #repeat above steps, but now for the Buy&Hold portfolio allocation optimization
+        max_finalUtility_rowIndex_buyHold <- which(final_expected_utility_buyHold==max(final_expected_utility_buyHold))
+        final_optimal_allocation_buyHold <- all_allocations_BuyHold[max_finalUtility_rowIndex_buyHold,]
+        row.names(final_optimal_allocation_buyHold) <- NULL
+        
+        for (asset in assets){
+          allocations_buyHold[,asset] <- final_optimal_allocation_buyHold[1,asset]
+        }
+        #Break because we do not need the calculations below for the last iteration anyways
+        break
+      }
+      #for the optimal portfolio allocations for each scenario, calculate its corresponding utility
+      #should be a (#scenarios)x1 matrix
+      vector_wealth <- matrix(0,nrow=nrow(return_var_list[[1]]),ncol=1)
+      num_col <- 1
+      for (var in names(return_var_list)){
+        vector_wealth <- vector_wealth + current_total_opt_allocation_perScenario_dynamic[,num_col]*return_var_list[[var]][,period]
+        num_col <- num_col + 1
+      }
+      
+      #Use power utility, except when gamma is 1, then use log utility function
+      if (gamma==1){
+        optimal_allocations_perScenario_dynamic$utility <- log(vector_wealth)
+      } else {
+        optimal_allocations_perScenario_dynamic$utility <- (vector_wealth)^(1-gamma)
+      }
+      
+      #store in period list
+      period_list[['newPeriod']] <- optimal_allocations_perScenario_dynamic
+      names(period_list)[names(period_list)=='newPeriod'] <- period
+      
+      #update the possible portfolio allocation grid, by adhering to
+      #to the fact that stock allocation can decrease by at most 8% over time
+      equity_allocation_prev_period <- sum(allocations_dynamic[period,4:ncol(allocations_dynamic)])
+      if (round(1-equity_allocation_prev_period,2)<=round(2*incr_value,2)){
+        all_allocations_dynamic <- generate_next_allocation_grid(allocations_dynamic[period,],incr_value,incr_value,
+                                                                 equity_allocation_prev_period,T)
+      } else {
+        all_allocations_dynamic <- generate_next_allocation_grid(allocations_dynamic[period,],incr_value,incr_value,
+                                                                 equity_allocation_prev_period,F)
+      }
       # if ((horizon==3)&(period==3)){
       #   return(all_allocations_dynamic)
       # }
@@ -1317,61 +1645,64 @@ total_Allocation_count <- nrow(all_allocations)
 #Run the optimisation over the base case dataset
 
 
-for (i in 8:8){
+for (i in 1:8){
   print(paste('we are at iteration ',as.character(i),sep=''))
   if (i==1){
     load('cluster_0_input_normalReturns_simple.RData')
     ESG_constraint <- F
-    output_file_name <- "simple_returnOnly_optimal_allocations_v2.RData"
+    output_file_name <- "simple_returnOnly_optimal_allocations_vfinal_65.RData"
     increment_level <- 0.04
   } else if (i==2){
     load('cluster_0_input_normalReturns_simple.RData')
     ESG_constraint <- T
-    output_file_name <- "simple_ESGRestricted_optimal_allocations_v2.RData"
+    output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_65.RData"
     increment_level <- 0.04
   } else if (i==3){
     load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- F
-    output_file_name <- "kmeans_returnOnly_optimal_allocations_v2.RData"
+    output_file_name <- "kmeans_returnOnly_optimal_allocations_vfinal_65.RData"
     increment_level <- 0.04
   } else if (i==4) {
     load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_v2.RData"
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_65.RData"
     increment_level <- 0.04
   } else if (i==5) {
     load('cluster_0_input_normalReturns_simple.RData')
     ESG_constraint <- F
-    output_file_name <- "simple_returnOnly_optimal_allocations_v3.RData"
-    increment_level <- 0.06
+    output_file_name <- "simple_returnOnly_optimal_allocations_vfinal_75.RData"
+    increment_level <- 0.04
+    ESG_threshold <- 75
   } else if (i==6) {
     load('cluster_0_input_normalReturns_simple.RData')
     ESG_constraint <- T
-    output_file_name <- "simple_ESGRestricted_optimal_allocations_v3.RData"
-    increment_level <- 0.06
+    output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_75.RData"
+    increment_level <- 0.04
+    ESG_threshold <- 75
   } else if (i==7) {
     load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- F
-    output_file_name <- "kmeans_returnOnly_optimal_allocations_v3.RData"
-    increment_level <- 0.06
+    output_file_name <- "kmeans_returnOnly_optimal_allocations_vfinal_75.RData"
+    increment_level <- 0.04
+    ESG_threshold <- 75
   } else {
     load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_v3.RData"
-    increment_level <- 0.06
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_75.RData"
+    increment_level <- 0.04
+    ESG_threshold <- 75
   }
   
   if (hyperParm_tuning){
     optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
                                                       ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000,increment_level)
   } else {
-    optimal_allocations <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
+    optimal_allocations <- get_optimal_allocation_v2(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
                                                   ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000,increment_level)
   }
   
   save(optimal_allocations,file=output_file_name)
 }
-
 
 # if (hyperParm_tuning){
 #   optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],

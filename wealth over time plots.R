@@ -100,7 +100,6 @@ get_CE <- function(opt_allocation,return_list,max_horizon){
 }
 
 CE_plot <- function(CE_over_horizons){
-  
   CE_graph <- cbind(1:15,stack(CE_over_horizons[1:ncol(CE_over_horizons)]))
   colnames(CE_graph) = cbind('Horizon', 'CE', 'Strategy')
 
@@ -110,7 +109,8 @@ CE_plot <- function(CE_over_horizons){
     labs(y= "Certainty Equivalent Rate", x = "Horizon") +
     geom_line() +
     scale_x_continuous(breaks = c(3,6,9,12,15))+
-    scale_color_manual(values=c("red", "blue", "green","black","purple","cyan","pink","orange","yellow","darkgreen"))
+    scale_color_manual(values=c("red", "blue", "green","black","purple","cyan","pink","orange"))
+    #scale_color_manual(values=c("red", "blue", "green","black","purple","cyan","pink","orange","yellow","darkgreen"))
 }
 
 wealth_uncertainty_plot <- function(wealthPerScenario){
@@ -194,7 +194,7 @@ for (horizon in 1:15){
 
 wealth_uncertainty_plot(wealthPerScenario_oneOverNFair)
 
-output_table <- as.data.frame(matrix(0,nrow=10,ncol=4))
+output_table <- as.data.frame(matrix(0,nrow=8,ncol=4))
 colnames(output_table) <- c("Strategy","Average Terminal Wealth","Stdev Terminal Wealth","Turnover")
 output_table[1,] <- c("1 over N fair",mean_terminal_wealth_oneOverNFair,
                       stdev_terminal_wealth_oneOverNFair,turnover_oneOverNFair)
@@ -302,10 +302,54 @@ mean_terminal_wealth_kmeans_ESG_buyHold <- output_vector[[6]]
 stdev_terminal_wealth_kmeans_ESG_buyHold <- output_vector[[7]]
 turnover_kmeans_ESG_buyHold <- output_vector[[8]]
 
-output_table[9,] <- c("K-means, ESG restricted, Dynamic",output_vector[[2]],
+output_table[7,] <- c("K-means, ESG restricted, Dynamic old",output_vector[[2]],
                       output_vector[[3]],output_vector[[4]])
-output_table[10,] <- c("K-means, ESG restricted, Buy&Hold",output_vector[[6]],
+output_table[8,] <- c("K-means, ESG restricted, Buy&Hold old",output_vector[[6]],
                       output_vector[[7]],output_vector[[8]])
+
+#=============== Section 8: Optimal asset allocations for ESG restricted and kmeans sorting, V6  ========================
+
+load('kmeans_ESGRestricted_optimal_allocations_v6.RData')
+optimal_allocations_kmeans_ESGRestricted_final <- optimal_allocations
+
+#perform for the Dynamic Allocation here
+output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted_final,return_test_set_kmeans,"K-means, ESG-restricted, v6")
+
+CE_kmeans_ESG_horizons_Dynamic_v6 <- output_vector[[1]]
+mean_terminal_wealth_kmeans_ESG_v6 <- output_vector[[2]]
+stdev_terminal_wealth_kmeans_ESG_v6 <- output_vector[[3]]
+turnover_kmeans_ESG_v6 <- output_vector[[4]]
+CE_kmeans_ESG_horizons_buyHold_v6 <- output_vector[[5]]
+mean_terminal_wealth_kmeans_ESG_buyHold_v6 <- output_vector[[6]]
+stdev_terminal_wealth_kmeans_ESG_buyHold_v6 <- output_vector[[7]]
+turnover_kmeans_ESG_buyHold_v6 <- output_vector[[8]]
+
+output_table[3,] <- c("K-means, ESG restricted, Dynamic six",output_vector[[2]],
+                      output_vector[[3]],output_vector[[4]])
+output_table[4,] <- c("K-means, ESG restricted, Buy&Hold six",output_vector[[6]],
+                       output_vector[[7]],output_vector[[8]])
+
+#=============== Section 8: Optimal asset allocations for ESG restricted and kmeans sorting, V7  ========================
+
+load('kmeans_ESGRestricted_optimal_allocations_v7.RData')
+optimal_allocations_kmeans_ESGRestricted_final <- optimal_allocations
+
+#perform for the Dynamic Allocation here
+output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted_final,return_test_set_kmeans,"K-means, ESG-restricted, v7")
+
+CE_kmeans_ESG_horizons_Dynamic_v7 <- output_vector[[1]]
+mean_terminal_wealth_kmeans_ESG_v7 <- output_vector[[2]]
+stdev_terminal_wealth_kmeans_ESG_v7 <- output_vector[[3]]
+turnover_kmeans_ESG_v7 <- output_vector[[4]]
+CE_kmeans_ESG_horizons_buyHold_v7 <- output_vector[[5]]
+mean_terminal_wealth_kmeans_ESG_buyHold_v7 <- output_vector[[6]]
+stdev_terminal_wealth_kmeans_ESG_buyHold_v7 <- output_vector[[7]]
+turnover_kmeans_ESG_buyHold_v7 <- output_vector[[8]]
+
+output_table[5,] <- c("K-means, ESG restricted, Dynamic seven",output_vector[[2]],
+                      output_vector[[3]],output_vector[[4]])
+output_table[6,] <- c("K-means, ESG restricted, Buy&Hold seven",output_vector[[6]],
+                       output_vector[[7]],output_vector[[8]])
 
 #=============== Section End: Create CE plot with all asset allocations ========
 
@@ -315,12 +359,20 @@ output_table[,4] <- as.numeric(output_table[,4])
 output_table[,2:4] <- round(output_table[,2:4],3)
 #add other asset allocations here
 
+# CE_all <- cbind(CE_oneOverNFair_horizons,CE_oneOverN_horizons,
+#                 CE_simple_returnOnly_horizons_Dynamic,CE_simple_returnOnly_horizons_buyHold,
+#                 CE_simple_ESG_horizons_Dynamic,CE_simple_ESG_horizons_buyHold,
+#                 CE_kmeans_returnOnly_horizons_Dynamic,CE_kmeans_returnOnly_horizons_buyHold,
+#                 CE_kmeans_ESG_horizons_Dynamic,CE_kmeans_ESG_horizons_buyHold)
+
 CE_all <- cbind(CE_oneOverNFair_horizons,CE_oneOverN_horizons,
-                CE_simple_returnOnly_horizons_Dynamic,CE_simple_returnOnly_horizons_buyHold,
-                CE_simple_ESG_horizons_Dynamic,CE_simple_ESG_horizons_buyHold,
-                CE_kmeans_returnOnly_horizons_Dynamic,CE_kmeans_returnOnly_horizons_buyHold,
+                CE_kmeans_ESG_horizons_Dynamic_v6,CE_kmeans_ESG_horizons_buyHold_v6,
+                CE_kmeans_ESG_horizons_Dynamic_v7,CE_kmeans_ESG_horizons_buyHold_v7,
                 CE_kmeans_ESG_horizons_Dynamic,CE_kmeans_ESG_horizons_buyHold)
+CE_all <- log(CE_all)
+CE_all <- as.data.frame(CE_all)
 
 colnames(CE_all) <- output_table[,1]
+
 #show the CE plot
 CE_plot(CE_all)
