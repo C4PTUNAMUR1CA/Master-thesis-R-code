@@ -567,7 +567,7 @@ generate_next_allocation_grid <- function(current_allocation,increment_value,
   #Generate here the possible portfolio weights per asset, given its current portfolio weight in current_allocation
   allocations_assets <- list()
   for (asset in 1:length(current_allocation)){
-    if (asset<=2){
+    if (asset<=1){
       allocations_assets[[asset]] <- round(seq(current_allocation[asset]-(2*width_length),current_allocation[asset],by=increment_value),2)
       allocations_assets[[asset]] <- allocations_assets[[asset]][allocations_assets[[asset]]>=0]
     } else {
