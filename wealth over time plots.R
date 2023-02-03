@@ -110,8 +110,8 @@ CE_plot <- function(CE_over_horizons){
     geom_line() +
     scale_x_continuous(breaks = c(3,6,9,12,15))+
     scale_color_manual(values=c("red", "blue", "green","black","purple",
-                                     "cyan","pink","orange","yellow","darkgreen",
-                                     "grey","brown","beige","darkgoldenrod3"))
+                                     "cyan","pink","orange","yellow","brown",
+                                     "grey","darkgreen","beige","darkgoldenrod3"))
     #scale_color_manual(values=c("red", "blue", "green","black","purple","cyan","pink","orange","yellow","darkgreen"))
 }
 
@@ -226,7 +226,7 @@ output_table[2,] <- c("1 over N",mean_terminal_wealth_oneOverN,
 
 #=============== Section 5: Optimal asset allocations for return-only and simple sorting  ========================
 
-load('simple_returnOnly_optimal_allocations_vfinal_55.RData')
+load('simple_returnOnly_optimal_allocations_vfinal_65.RData')
 optimal_allocations_simple_returnOnly <- optimal_allocations
 
 output_vector <- Generate_all_plots(optimal_allocations_simple_returnOnly,return_test_set_kmeans,"simple, return-only,")
@@ -248,29 +248,29 @@ output_table[4,] <- c("Simple, return-only, Buy&Hold",output_vector[[6]],
 
 #=============== Section 5: Optimal asset allocations for ESG restricted and simple sorting  ========================
 
-load('simple_ESGRestricted_optimal_allocations_vfinal_55.RData')
+load('simple_ESGRestricted_optimal_allocations_vfinal_65.RData')
 optimal_allocations_simple_ESGRestricted <- optimal_allocations
 
 #perform for the Dynamic Allocation here
 output_vector <- Generate_all_plots(optimal_allocations_simple_ESGRestricted,return_test_set_kmeans,"simple, ESG-restricted,")
 
-CE_simple_ESG_horizons_Dynamic_55 <- output_vector[[1]]
+CE_simple_ESG_horizons_Dynamic_65 <- output_vector[[1]]
 mean_terminal_wealth_simple_ESG <- output_vector[[2]]
 stdev_terminal_wealth_simple_ESG <- output_vector[[3]]
 turnover_simple_ESG <- output_vector[[4]]
-CE_simple_ESG_horizons_buyHold_55 <- output_vector[[5]]
+CE_simple_ESG_horizons_buyHold_65 <- output_vector[[5]]
 mean_terminal_wealth_simple_ESG_buyHold <- output_vector[[6]]
 stdev_terminal_wealth_simple_ESG_buyHold <- output_vector[[7]]
 turnover_simple_ESG_buyHold <- output_vector[[8]]
 
-output_table[5,] <- c("Simple, ESG restricted, Dynamic, 55",output_vector[[2]],
+output_table[5,] <- c("Simple, ESG restricted, Dynamic",output_vector[[2]],
                       output_vector[[3]],output_vector[[4]])
-output_table[6,] <- c("Simple, ESG restricted, Buy&Hold, 55",output_vector[[6]],
+output_table[6,] <- c("Simple, ESG restricted, Buy&Hold",output_vector[[6]],
                       output_vector[[7]],output_vector[[8]])
 
 #=============== Section 6: Optimal asset allocations for return-only and kmeans sorting  ========================
 
-load('kmeans_returnOnly_optimal_allocations_vfinal_55.RData')
+load('kmeans_returnOnly_optimal_allocations_vfinal_65.RData')
 optimal_allocations_kmeans_returnOnly <- optimal_allocations
 
 #perform for the Dynamic Allocation here
@@ -292,28 +292,6 @@ output_table[8,] <- c("K-means, return-only, Buy&Hold",output_vector[[6]],
 
 #=============== Section 7: Optimal asset allocations for ESG restricted and kmeans sorting  ========================
 
-load('kmeans_ESGRestricted_optimal_allocations_vfinal_55.RData')
-optimal_allocations_kmeans_ESGRestricted_final <- optimal_allocations
-
-#perform for the Dynamic Allocation here
-output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted_final,return_test_set_kmeans,"K-means, ESG-restricted,")
-
-CE_kmeans_ESG_horizons_Dynamic_55 <- output_vector[[1]]
-mean_terminal_wealth_kmeans_ESG <- output_vector[[2]]
-stdev_terminal_wealth_kmeans_ESG <- output_vector[[3]]
-turnover_kmeans_ESG <- output_vector[[4]]
-CE_kmeans_ESG_horizons_buyHold_55 <- output_vector[[5]]
-mean_terminal_wealth_kmeans_ESG_buyHold <- output_vector[[6]]
-stdev_terminal_wealth_kmeans_ESG_buyHold <- output_vector[[7]]
-turnover_kmeans_ESG_buyHold <- output_vector[[8]]
-
-output_table[9,] <- c("K-means, ESG restricted, Dynamic, 55",output_vector[[2]],
-                      output_vector[[3]],output_vector[[4]])
-output_table[10,] <- c("K-means, ESG restricted, Buy&Hold, 55",output_vector[[6]],
-                      output_vector[[7]],output_vector[[8]])
-
-#=============== Section 8: Optimal asset allocations for ESG restricted and kmeans sorting, V6  ========================
-
 load('kmeans_ESGRestricted_optimal_allocations_vfinal_65.RData')
 optimal_allocations_kmeans_ESGRestricted_final <- optimal_allocations
 
@@ -329,76 +307,10 @@ mean_terminal_wealth_kmeans_ESG_buyHold <- output_vector[[6]]
 stdev_terminal_wealth_kmeans_ESG_buyHold <- output_vector[[7]]
 turnover_kmeans_ESG_buyHold <- output_vector[[8]]
 
-output_table[11,] <- c("K-means, ESG restricted, Dynamic, 65",output_vector[[2]],
+output_table[9,] <- c("K-means, ESG restricted, Dynamic",output_vector[[2]],
                       output_vector[[3]],output_vector[[4]])
-output_table[12,] <- c("K-means, ESG restricted, Buy&Hold, 65",output_vector[[6]],
+output_table[10,] <- c("K-means, ESG restricted, Buy&Hold",output_vector[[6]],
                       output_vector[[7]],output_vector[[8]])
-
-#=============== Section 8: Optimal asset allocations for ESG restricted and kmeans sorting, V7  ========================
-
-load('kmeans_ESGRestricted_optimal_allocations_vfinal_75.RData')
-optimal_allocations_kmeans_ESGRestricted_final <- optimal_allocations
-
-#perform for the Dynamic Allocation here
-output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted_final,return_test_set_kmeans,"K-means, ESG-restricted,")
-
-CE_kmeans_ESG_horizons_Dynamic_75 <- output_vector[[1]]
-mean_terminal_wealth_kmeans_ESG <- output_vector[[2]]
-stdev_terminal_wealth_kmeans_ESG <- output_vector[[3]]
-turnover_kmeans_ESG <- output_vector[[4]]
-CE_kmeans_ESG_horizons_buyHold_75 <- output_vector[[5]]
-mean_terminal_wealth_kmeans_ESG_buyHold <- output_vector[[6]]
-stdev_terminal_wealth_kmeans_ESG_buyHold <- output_vector[[7]]
-turnover_kmeans_ESG_buyHold <- output_vector[[8]]
-
-output_table[13,] <- c("K-means, ESG restricted, Dynamic, 75",output_vector[[2]],
-                      output_vector[[3]],output_vector[[4]])
-output_table[14,] <- c("K-means, ESG restricted, Buy&Hold, 75",output_vector[[6]],
-                      output_vector[[7]],output_vector[[8]])
-
-#=============== Section 8: Optimal asset allocations for ESG restricted and kmeans sorting, V7  ========================
-
-load('simple_ESGRestricted_optimal_allocations_vfinal_65.RData')
-optimal_allocations_simple_ESGRestricted <- optimal_allocations
-
-#perform for the Dynamic Allocation here
-output_vector <- Generate_all_plots(optimal_allocations_simple_ESGRestricted,return_test_set_kmeans,"simple, ESG-restricted,")
-
-CE_simple_ESG_horizons_Dynamic_65 <- output_vector[[1]]
-mean_terminal_wealth_simple_ESG <- output_vector[[2]]
-stdev_terminal_wealth_simple_ESG <- output_vector[[3]]
-turnover_simple_ESG <- output_vector[[4]]
-CE_simple_ESG_horizons_buyHold_65 <- output_vector[[5]]
-mean_terminal_wealth_simple_ESG_buyHold <- output_vector[[6]]
-stdev_terminal_wealth_simple_ESG_buyHold <- output_vector[[7]]
-turnover_simple_ESG_buyHold <- output_vector[[8]]
-
-output_table[15,] <- c("Simple, ESG restricted, Dynamic, 65",output_vector[[2]],
-                      output_vector[[3]],output_vector[[4]])
-output_table[16,] <- c("Simple, ESG restricted, Buy&Hold, 65",output_vector[[6]],
-                      output_vector[[7]],output_vector[[8]])
-
-#=============== Section 8: Optimal asset allocations for ESG restricted and kmeans sorting, V7  ========================
-
-load('simple_ESGRestricted_optimal_allocations_vfinal_75.RData')
-optimal_allocations_simple_ESGRestricted <- optimal_allocations
-
-#perform for the Dynamic Allocation here
-output_vector <- Generate_all_plots(optimal_allocations_simple_ESGRestricted,return_test_set_kmeans,"simple, ESG-restricted,")
-
-CE_simple_ESG_horizons_Dynamic_75 <- output_vector[[1]]
-mean_terminal_wealth_simple_ESG <- output_vector[[2]]
-stdev_terminal_wealth_simple_ESG <- output_vector[[3]]
-turnover_simple_ESG <- output_vector[[4]]
-CE_simple_ESG_horizons_buyHold_75 <- output_vector[[5]]
-mean_terminal_wealth_simple_ESG_buyHold <- output_vector[[6]]
-stdev_terminal_wealth_simple_ESG_buyHold <- output_vector[[7]]
-turnover_simple_ESG_buyHold <- output_vector[[8]]
-
-output_table[17,] <- c("Simple, ESG restricted, Dynamic, 75",output_vector[[2]],
-                       output_vector[[3]],output_vector[[4]])
-output_table[18,] <- c("Simple, ESG restricted, Buy&Hold, 75",output_vector[[6]],
-                       output_vector[[7]],output_vector[[8]])
 
 #=============== Section End: Create CE plot with all asset allocations ========
 
@@ -416,13 +328,13 @@ output_table[,2:4] <- round(output_table[,2:4],3)
 
 CE_all <- cbind(CE_oneOverNFair_horizons,CE_oneOverN_horizons,
                 CE_simple_returnOnly_horizons_Dynamic,CE_simple_returnOnly_horizons_buyHold,
+                CE_simple_ESG_horizons_Dynamic_65,CE_simple_ESG_horizons_buyHold_65,
                 CE_kmeans_returnOnly_horizons_Dynamic,CE_kmeans_returnOnly_horizons_buyHold,
-                CE_kmeans_ESG_horizons_Dynamic_65,CE_kmeans_ESG_horizons_buyHold_65,
-                CE_simple_ESG_horizons_Dynamic_65,CE_simple_ESG_horizons_buyHold_65)
+                CE_kmeans_ESG_horizons_Dynamic_65,CE_kmeans_ESG_horizons_buyHold_65)
 
 CE_all <- as.data.frame(CE_all)
 
-colnames(CE_all) <- output_table[c(1,2,3,4,7,8,11,12,15,16),1]
+colnames(CE_all) <- output_table[,1]
 
 #show the CE plot
 CE_plot(CE_all)

@@ -30,7 +30,7 @@ allocations_graphs <- function(allocations,horizons){
     scale_fill_manual(values=c("#922B21", "#633974", "#1A5276",
                                 "#117864", "#9A7D0A", "#873600",
                                 "#979A9A", "#515A5A", "#1C2833",
-                                "#999999", "#196F3D"))
+                                "#999966", "#196F3D"))
 }
 
 allocations_graphs_equitySummed <- function(allocations,horizons){
@@ -178,7 +178,7 @@ allocations_graphs_equitySummed(optimal_allocations_kmeans_ESGRestricted_buyHold
 #=============== Section 6.1: optimal asset allocations with ESG threshold 55 ===========================================
 #=============== Section 6.1.1: New optimal asset allocations with return only and simple sorting, ESG 55 ===========================================
 
-load('simple_returnOnly_optimal_allocations_vfinal_55.RData')
+load('simple_returnOnly_optimal_allocations_vfinal_65.RData')
 optimal_allocations_simple_returnOnly <- optimal_allocations
 optimal_allocations_simple_returnOnly_dynamic <- obtain_final_period_allocation_per_horizon(optimal_allocations_simple_returnOnly,'Dynamic')
 optimal_allocations_simple_returnOnly_buyHold <- obtain_final_period_allocation_per_horizon(optimal_allocations_simple_returnOnly,'BuyHold')
@@ -189,7 +189,7 @@ allocations_graphs(optimal_allocations_simple_returnOnly_buyHold,horizons)
 
 #=============== Section 6.1.2: New optimal asset allocations with ESG restricted and simple sorting, ESG 55 ===========================================
 
-load('simple_ESGRestricted_optimal_allocations_vfinal_55.RData')
+load('simple_ESGRestricted_optimal_allocations_vfinal_65.RData')
 optimal_allocations_simple_ESGRestricted <- optimal_allocations
 optimal_allocations_simple_ESGRestricted_dynamic <- obtain_final_period_allocation_per_horizon(optimal_allocations_simple_ESGRestricted,'Dynamic')
 optimal_allocations_simple_ESGRestricted_buyHold <- obtain_final_period_allocation_per_horizon(optimal_allocations_simple_ESGRestricted,'BuyHold')
@@ -200,7 +200,7 @@ allocations_graphs(optimal_allocations_simple_ESGRestricted_buyHold,horizons)
 
 #=============== Section 6.1.3: New optimal asset allocations with return only and kmeans sorting, ESG 55 ===========================================
 
-load('kmeans_returnOnly_optimal_allocations_vfinal_55.RData')
+load('kmeans_returnOnly_optimal_allocations_vfinal_65.RData')
 optimal_allocations_kmeans_returnOnly <- optimal_allocations
 optimal_allocations_kmeans_returnOnly_dynamic <- obtain_final_period_allocation_per_horizon(optimal_allocations_kmeans_returnOnly,'Dynamic')
 optimal_allocations_kmeans_returnOnly_buyHold <- obtain_final_period_allocation_per_horizon(optimal_allocations_kmeans_returnOnly,'BuyHold')
@@ -211,7 +211,7 @@ allocations_graphs(optimal_allocations_kmeans_returnOnly_buyHold,horizons)
 
 #=============== Section 6.1.4: New optimal asset allocations with ESG restricted and kmeans sorting, ESG 55 ===========================================
 
-load('kmeans_ESGRestricted_optimal_allocations_vfinal_55.RData')
+load('kmeans_ESGRestricted_optimal_allocations_vfinal_65.RData')
 optimal_allocations_kmeans_ESGRestricted <- optimal_allocations
 optimal_allocations_kmeans_ESGRestricted_dynamic <- obtain_final_period_allocation_per_horizon(optimal_allocations_kmeans_ESGRestricted,'Dynamic')
 optimal_allocations_kmeans_ESGRestricted_buyHold <- obtain_final_period_allocation_per_horizon(optimal_allocations_kmeans_ESGRestricted,'BuyHold')
