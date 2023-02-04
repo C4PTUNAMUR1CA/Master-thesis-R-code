@@ -133,7 +133,7 @@ wealth_uncertainty_plot <- function(wealthPerScenario){
 Generate_all_plots <- function(optimal_allocation,return_set,colname){
   
   CE_df_dyn <- as.data.frame(matrix(0,nrow=15,ncol=1))
-  colnames(CE_df_dyn) <- paste(colname,"Dynamic",sep=' ')
+  colnames(CE_df_dyn) <- paste("Dynamic",colname,sep='')
   for (horizon in 1:15){
     if (horizon==1){
       CE_df_dyn[horizon,1] <- get_CE(optimal_allocation[['Dynamic']][[horizon]],return_set,horizon+1)
@@ -175,143 +175,89 @@ Generate_all_plots <- function(optimal_allocation,return_set,colname){
 
 #=============== Section 3: 1 over N allocation, with equal weight across asset classes ========
 
-bond_allocations <- as.data.frame(matrix(round(1/4,2),nrow=15,ncol=3))
-equity_allocations <- as.data.frame(matrix(round(0.25/8,2),nrow=15,ncol=8))
+load('kmeans_ESGRestricted_optimal_allocations_vfinal_35.RData')
+optimal_allocations_kmeans_ESGRestricted <- optimal_allocations
 
-oneOverN_allocation_equityFair <- cbind(bond_allocations,equity_allocations)
-colnames(oneOverN_allocation_equityFair) <- assets
+output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted,return_test_set_kmeans,", K-means sorting, ESG-restricted")
 
-CE_oneOverNFair_horizons <- as.data.frame(matrix(0,nrow=15,ncol=1))
-colnames(CE_oneOverNFair_horizons) <- "oneOverNFair"
-for (horizon in 1:15){
-  CE_oneOverNFair_horizons[horizon,1] <- get_CE(oneOverN_allocation_equityFair[1:horizon,],return_test_set_kmeans,horizon)
-  if (horizon==15){
-    wealthPerScenario_oneOverNFair <- get_wealth_perScenario(oneOverN_allocation_equityFair[1:horizon,],return_test_set_kmeans,horizon)
-    mean_terminal_wealth_oneOverNFair <- mean(get_terminal_wealth_perScenario(oneOverN_allocation_equityFair[1:horizon,],return_test_set_kmeans,horizon))
-    stdev_terminal_wealth_oneOverNFair <- sd(get_terminal_wealth_perScenario(oneOverN_allocation_equityFair[1:horizon,],return_test_set_kmeans,horizon))
-    SR_oneOverNFair <- mean_terminal_wealth_oneOverNFair/stdev_terminal_wealth_oneOverNFair
-    hist(get_terminal_wealth_perScenario(oneOverN_allocation_equityFair[1:horizon,],return_test_set_kmeans,horizon))
-    turnover_oneOverNFair <- get_turnover(oneOverN_allocation_equityFair[1:horizon,],return_test_set_kmeans,horizon)
-  }
-}
+CE_35 <- output_vector[[1]]
 
-wealth_uncertainty_plot(wealthPerScenario_oneOverNFair)
-
-output_table <- as.data.frame(matrix(0,nrow=8,ncol=4))
+output_table <- as.data.frame(matrix(0,nrow=1,ncol=4))
 colnames(output_table) <- c("Strategy","Average Terminal Wealth","Stdev Terminal Wealth","Turnover")
-output_table[1,] <- c("1 over N fair",mean_terminal_wealth_oneOverNFair,
-                      stdev_terminal_wealth_oneOverNFair,turnover_oneOverNFair)
+output_table[1,] <- c("ESG threshold 35",output_vector[[2]],
+                      output_vector[[3]],output_vector[[4]])
 
 #=============== Section 4: 1 over N allocation, with equal weight across all assets ========
 
-oneOverN_allocation <- as.data.frame(matrix(round(1/length(assets),2),nrow=15,ncol=11))
-colnames(oneOverN_allocation) <- assets
+load('kmeans_ESGRestricted_optimal_allocations_vfinal_45.RData')
+optimal_allocations_kmeans_ESGRestricted <- optimal_allocations
 
-CE_oneOverN_horizons <- as.data.frame(matrix(0,nrow=15,ncol=1))
-colnames(CE_oneOverN_horizons) <- "oneOverN"
-for (horizon in 1:15){
-  CE_oneOverN_horizons[horizon,1] <- get_CE(oneOverN_allocation[1:horizon,],return_test_set_kmeans,horizon)
-  if (horizon==15){
-    wealthPerScenario_oneOverN <- get_wealth_perScenario(oneOverN_allocation[1:horizon,],return_test_set_kmeans,horizon)
-    mean_terminal_wealth_oneOverN <- mean(get_terminal_wealth_perScenario(oneOverN_allocation[1:horizon,],return_test_set_kmeans,horizon))
-    stdev_terminal_wealth_oneOverN <- sd(get_terminal_wealth_perScenario(oneOverN_allocation[1:horizon,],return_test_set_kmeans,horizon))
-    hist(get_terminal_wealth_perScenario(oneOverN_allocation[1:horizon,],return_test_set_kmeans,horizon))
-    turnover_oneOverN <- get_turnover(oneOverN_allocation[1:horizon,],return_test_set_kmeans,horizon)
-  }
-}
+output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted,return_test_set_kmeans,", K-means sorting, ESG-restricted")
 
-wealth_uncertainty_plot(wealthPerScenario_oneOverN)
+CE_45 <- output_vector[[1]]
 
-output_table[2,] <- c("1 over N",mean_terminal_wealth_oneOverN,
-                      stdev_terminal_wealth_oneOverN,turnover_oneOverN)
+output_table[2,] <- c("ESG threshold 45",output_vector[[2]],
+                      output_vector[[3]],output_vector[[4]])
 
 #=============== Section 5: Optimal asset allocations for return-only and simple sorting  ========================
 
-load('simple_returnOnly_optimal_allocations_vfinal_65.RData')
-optimal_allocations_simple_returnOnly <- optimal_allocations
+load('kmeans_ESGRestricted_optimal_allocations_vfinal_55.RData')
+optimal_allocations_kmeans_ESGRestricted <- optimal_allocations
 
-output_vector <- Generate_all_plots(optimal_allocations_simple_returnOnly,return_test_set_kmeans,"simple, return-only,")
+output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted,return_test_set_kmeans,", K-means sorting, ESG-restricted")
 
-CE_simple_returnOnly_horizons_Dynamic <- output_vector[[1]]
-mean_terminal_wealth_simple_returnOnly <- output_vector[[2]]
-stdev_terminal_wealth_simple_returnOnly <- output_vector[[3]]
-turnover_simple_returnOnly <- output_vector[[4]]
-CE_simple_returnOnly_horizons_buyHold <- output_vector[[5]]
-mean_terminal_wealth_simple_returnOnly_buyHold <- output_vector[[6]]
-stdev_terminal_wealth_simple_returnOnly_buyHold <- output_vector[[7]]
-turnover_simple_returnOnly_buyHold <- output_vector[[8]]
-#perform for the Dynamic Allocation here
+CE_55 <- output_vector[[1]]
 
-output_table[3,] <- c("Simple, return-only, Dynamic",output_vector[[2]],
+output_table[3,] <- c("ESG threshold 55",output_vector[[2]],
                       output_vector[[3]],output_vector[[4]])
-output_table[4,] <- c("Simple, return-only, Buy&Hold",output_vector[[6]],
-                      output_vector[[7]],output_vector[[8]])
 
 #=============== Section 5: Optimal asset allocations for ESG restricted and simple sorting  ========================
 
-load('simple_ESGRestricted_optimal_allocations_vfinal_65.RData')
-optimal_allocations_simple_ESGRestricted <- optimal_allocations
+load('kmeans_ESGRestricted_optimal_allocations_vfinal_65.RData')
+optimal_allocations_kmeans_ESGRestricted <- optimal_allocations
 
-#perform for the Dynamic Allocation here
-output_vector <- Generate_all_plots(optimal_allocations_simple_ESGRestricted,return_test_set_kmeans,"simple, ESG-restricted,")
+output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted,return_test_set_kmeans,", K-means sorting, ESG-restricted")
 
-CE_simple_ESG_horizons_Dynamic_65 <- output_vector[[1]]
-mean_terminal_wealth_simple_ESG <- output_vector[[2]]
-stdev_terminal_wealth_simple_ESG <- output_vector[[3]]
-turnover_simple_ESG <- output_vector[[4]]
-CE_simple_ESG_horizons_buyHold_65 <- output_vector[[5]]
-mean_terminal_wealth_simple_ESG_buyHold <- output_vector[[6]]
-stdev_terminal_wealth_simple_ESG_buyHold <- output_vector[[7]]
-turnover_simple_ESG_buyHold <- output_vector[[8]]
+CE_65 <- output_vector[[1]]
 
-output_table[5,] <- c("Simple, ESG restricted, Dynamic",output_vector[[2]],
+output_table[4,] <- c("ESG threshold 65",output_vector[[2]],
                       output_vector[[3]],output_vector[[4]])
-output_table[6,] <- c("Simple, ESG restricted, Buy&Hold",output_vector[[6]],
-                      output_vector[[7]],output_vector[[8]])
 
 #=============== Section 6: Optimal asset allocations for return-only and kmeans sorting  ========================
 
-load('kmeans_returnOnly_optimal_allocations_vfinal_65.RData')
-optimal_allocations_kmeans_returnOnly <- optimal_allocations
+load('kmeans_ESGRestricted_optimal_allocations_vfinal_75.RData')
+optimal_allocations_kmeans_ESGRestricted <- optimal_allocations
 
-#perform for the Dynamic Allocation here
-output_vector <- Generate_all_plots(optimal_allocations_kmeans_returnOnly,return_test_set_kmeans,"K-means, return-only,")
+output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted,return_test_set_kmeans,", K-means sorting, ESG-restricted")
 
-CE_kmeans_returnOnly_horizons_Dynamic <- output_vector[[1]]
-mean_terminal_wealth_kmeans_returnOnly <- output_vector[[2]]
-stdev_terminal_wealth_kmeans_returnOnly <- output_vector[[3]]
-turnover_kmeans_returnOnly <- output_vector[[4]]
-CE_kmeans_returnOnly_horizons_buyHold <- output_vector[[5]]
-mean_terminal_wealth_kmeans_returnOnly_buyHold <- output_vector[[6]]
-stdev_terminal_wealth_kmeans_returnOnly_buyHold <- output_vector[[7]]
-turnover_kmeans_returnOnly_buyHold <- output_vector[[8]]
+CE_75 <- output_vector[[1]]
 
-output_table[7,] <- c("K-means, return-only, Dynamic",output_vector[[2]],
+output_table[5,] <- c("ESG threshold 75",output_vector[[2]],
                       output_vector[[3]],output_vector[[4]])
-output_table[8,] <- c("K-means, return-only, Buy&Hold",output_vector[[6]],
-                      output_vector[[7]],output_vector[[8]])
 
 #=============== Section 7: Optimal asset allocations for ESG restricted and kmeans sorting  ========================
 
-load('kmeans_ESGRestricted_optimal_allocations_vfinal_65.RData')
-optimal_allocations_kmeans_ESGRestricted_final <- optimal_allocations
+load('kmeans_ESGRestricted_optimal_allocations_vfinal_85.RData')
+optimal_allocations_kmeans_ESGRestricted <- optimal_allocations
 
-#perform for the Dynamic Allocation here
-output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted_final,return_test_set_kmeans,"K-means, ESG-restricted,")
+output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted,return_test_set_kmeans,", K-means sorting, ESG-restricted")
 
-CE_kmeans_ESG_horizons_Dynamic_65 <- output_vector[[1]]
-mean_terminal_wealth_kmeans_ESG <- output_vector[[2]]
-stdev_terminal_wealth_kmeans_ESG <- output_vector[[3]]
-turnover_kmeans_ESG <- output_vector[[4]]
-CE_kmeans_ESG_horizons_buyHold_65 <- output_vector[[5]]
-mean_terminal_wealth_kmeans_ESG_buyHold <- output_vector[[6]]
-stdev_terminal_wealth_kmeans_ESG_buyHold <- output_vector[[7]]
-turnover_kmeans_ESG_buyHold <- output_vector[[8]]
+CE_85 <- output_vector[[1]]
 
-output_table[9,] <- c("K-means, ESG restricted, Dynamic",output_vector[[2]],
+output_table[6,] <- c("ESG threshold 85",output_vector[[2]],
                       output_vector[[3]],output_vector[[4]])
-output_table[10,] <- c("K-means, ESG restricted, Buy&Hold",output_vector[[6]],
-                       output_vector[[7]],output_vector[[8]])
+
+#=============== Section 7: Optimal asset allocations for ESG restricted and kmeans sorting  ========================
+
+load('kmeans_ESGRestricted_optimal_allocations_vfinal_95.RData')
+optimal_allocations_kmeans_ESGRestricted <- optimal_allocations
+
+output_vector <- Generate_all_plots(optimal_allocations_kmeans_ESGRestricted,return_test_set_kmeans,", K-means sorting, ESG-restricted")
+
+CE_95 <- output_vector[[1]]
+
+output_table[7,] <- c("ESG threshold 95",output_vector[[2]],
+                      output_vector[[3]],output_vector[[4]])
 
 #=============== Section End: Create CE plot with all asset allocations ========
 
@@ -328,11 +274,9 @@ output_table[,2:4] <- round(output_table[,2:4],3)
 #                 CE_kmeans_returnOnly_horizons_Dynamic,CE_kmeans_returnOnly_horizons_buyHold,
 #                 CE_kmeans_ESG_horizons_Dynamic,CE_kmeans_ESG_horizons_buyHold)
 
-CE_all <- cbind(CE_oneOverNFair_horizons,CE_oneOverN_horizons,
-                CE_simple_returnOnly_horizons_Dynamic,CE_simple_returnOnly_horizons_buyHold,
-                CE_simple_ESG_horizons_Dynamic_65,CE_simple_ESG_horizons_buyHold_65,
-                CE_kmeans_returnOnly_horizons_Dynamic,CE_kmeans_returnOnly_horizons_buyHold,
-                CE_kmeans_ESG_horizons_Dynamic_65,CE_kmeans_ESG_horizons_buyHold_65)
+CE_all <- cbind(CE_35,CE_45,CE_55,
+                CE_65,CE_75,CE_85,
+                CE_95)
 
 CE_all <- as.data.frame(CE_all)
 
