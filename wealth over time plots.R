@@ -6,6 +6,7 @@ library(magrittr)
 library(tidyr)
 library(dplyr)
 library(ggfan)
+library(writexl)
 
 #=============== Section 1: load all asset allocations ========
 
@@ -318,6 +319,7 @@ output_table[,2] <- as.numeric(output_table[,2])
 output_table[,3] <- as.numeric(output_table[,3])
 output_table[,4] <- as.numeric(output_table[,4])
 output_table[,2:4] <- round(output_table[,2:4],3)
+# write_xlsx(output_table,"C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/terminal wealth table.xlsx")
 #add other asset allocations here
 
 # CE_all <- cbind(CE_oneOverNFair_horizons,CE_oneOverN_horizons,
