@@ -1696,7 +1696,7 @@ total_Allocation_count <- nrow(all_allocations)
 #Run the optimisation over the base case dataset
 
 
-for (i in 1:8){
+for (i in 1:6){
   print(paste('we are at iteration ',as.character(i),sep=''))
   # if (i==1){
   #   load('cluster_0_input_normalReturns_simple.RData')
@@ -1792,6 +1792,11 @@ for (i in 1:8){
   
   save(optimal_allocations,file=output_file_name)
 }
+
+load("simple_returnOnly_optimal_allocations_vfinal_55.RData")
+
+save(optimal_allocations,file='kmeans_ESGRestricted_optimal_allocations_vfinal_55.RData')
+
 
 # if (hyperParm_tuning){
 #   optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
