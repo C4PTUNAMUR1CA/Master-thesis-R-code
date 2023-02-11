@@ -40,11 +40,13 @@ library(writexl)
 library(doParallel)
 library(parallel)
 library(MASS)
+library(readxl)
 
 #======== Section 1: Load required dataset here =================
 
-file_str_esg_score <- "simple_final_esgScore_cluster"
-simulation_file_name <- "simple_simulation10000_normalReturns_cluster_0"
+file_str_esg_score <- "kmeans_final_esgScore_cluster"
+simulation_file_name <- "simple_simulation10000_normalReturns_cluster_6"
+output_file_name <- "cluster_6_input_normalReturns_simple.RData"
 
 #======== Section 2: Specify the settings for the script =================
 
@@ -93,7 +95,7 @@ seed <- 10
 obtain_return_variables <- function(excel_file_name){
   #this function obtains the simulated return variables and combines them into a list
   
-  file_location = paste("C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/",as.character(excel_file_name),".xlsx",sep='')
+  file_location = paste("C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/",as.character(excel_file_name),".xlsx",sep='')
   
   sheetnames = c( "Tbill return",
                   "Tnote return",
@@ -119,8 +121,12 @@ obtain_return_variables <- function(excel_file_name){
                    "cluster_return_7",
                    "cluster_return_8")
   
+  #print("cluster_return_6")
+  #assign("cluster_return_6", openxlsx::read.xlsx(file_location, sheet = "cluster_return_6", colNames = F))
+  
   for (i in 1:length(sheetnames)){
-    assign(objectnames[i], openxlsx::read.xlsx(file_location, sheet = sheetnames[i], colNames = F))
+    print(sheetnames[i])
+    assign(objectnames[i], read_excel(file_location, sheet = sheetnames[i], col_names = F))
   }
   
   # Change variables to matrices instead of dataframes
@@ -154,7 +160,7 @@ obtain_return_variables <- function(excel_file_name){
 obtain_state_variables <- function(excel_file_name){
   #this function obtains the simulated state variables and combines them into a list
   
-  file_location = paste("C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/R code/",as.character(excel_file_name),".xlsx",sep='')
+  file_location = paste("C:/Users/nikit/OneDrive/Documents/EUR/Master QF/Master Thesis/new stuff/",as.character(excel_file_name),".xlsx",sep='')
   
   sheetnames = c( "real rate",
                   "yield spread",
@@ -171,7 +177,8 @@ obtain_state_variables <- function(excel_file_name){
                   "log_inflation_rate")
   
   for (i in 1:length(sheetnames)){
-    assign(objectnames[i], openxlsx::read.xlsx(file_location, sheet = sheetnames[i], colNames = F))
+    print(sheetnames[i])
+    assign(objectnames[i], read_excel(file_location, sheet = sheetnames[i], col_names = F))
   }
   
   # Change variables to matrices instead of dataframes
@@ -261,7 +268,6 @@ for (var_name in names(monthly_state_var_list)){
   }
 }
 
-
 #======== Section 6: Train test split =================
 
 # generate a training and test split among the 10000 scenarios
@@ -296,5 +302,11 @@ for (var_name in names(state_var_list)){
 # load("state_var_test_list_kmeans.RData")
 
 #======== Section 7: Create the RData file for the numerical model =================
-
-save.image(file='cluster_0_input_normalReturns_simple.RData')
+rm(monthly_return_var_list)
+rm(monthly_state_var_list)
+rm(return_var_list)
+rm(state_var_list)
+rm(av_returns)
+rm(training_subset)
+rm(cum_returns)
+save.image(file=output_file_name)
