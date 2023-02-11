@@ -1744,50 +1744,94 @@ for (i in 1:6){
   #   ESG_threshold <- 65
   # }
   
+  # if (i==1){
+  #   load('cluster_0_input_normalReturns_simple.RData')
+  #   ESG_constraint <- T
+  #   output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_45.RData"
+  #   increment_level <- 0.04
+  #   ESG_threshold <- 45
+  # } else if (i==2){
+  #   load('cluster_0_input_normalReturns_simple.RData')
+  #   ESG_constraint <- T
+  #   output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_55.RData"
+  #   increment_level <- 0.04
+  #   ESG_threshold <- 55
+  # } else if (i==3){
+  #   load('cluster_0_input_normalReturns_simple.RData')
+  #   ESG_constraint <- T
+  #   output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_75.RData"
+  #   increment_level <- 0.04
+  #   ESG_threshold <- 75
+  # } else if (i==4){
+  #   load('cluster_0_input_normalReturns_simple.RData')
+  #   ESG_constraint <- T
+  #   output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_85.RData"
+  #   increment_level <- 0.04
+  #   ESG_threshold <- 85
+  # } else if (i==5){
+  #   load('cluster_0_input_normalReturns_simple.RData')
+  #   ESG_constraint <- T
+  #   output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_95.RData"
+  #   increment_level <- 0.04
+  #   ESG_threshold <- 95
+  # } else {
+  #   load('cluster_0_input_normalReturns_simple.RData')
+  #   ESG_constraint <- T
+  #   output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_35.RData"
+  #   increment_level <- 0.04
+  #   ESG_threshold <- 35
+  # }
+  
   if (i==1){
-    load('cluster_0_input_normalReturns_simple.RData')
+    load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_45.RData"
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor1.RData"
     increment_level <- 0.04
-    ESG_threshold <- 45
+    ESG_threshold <- 65
+    cluster_now <- 2
   } else if (i==2){
-    load('cluster_0_input_normalReturns_simple.RData')
+    load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_55.RData"
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor2.RData"
     increment_level <- 0.04
-    ESG_threshold <- 55
+    ESG_threshold <- 65
+    cluster_now <- 3
   } else if (i==3){
-    load('cluster_0_input_normalReturns_simple.RData')
+    load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_75.RData"
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor3.RData"
     increment_level <- 0.04
-    ESG_threshold <- 75
+    ESG_threshold <- 65
+    cluster_now <- 4
   } else if (i==4){
-    load('cluster_0_input_normalReturns_simple.RData')
+    load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_85.RData"
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor4.RData"
     increment_level <- 0.04
-    ESG_threshold <- 85
+    ESG_threshold <- 65
+    cluster_now <- 5
   } else if (i==5){
-    load('cluster_0_input_normalReturns_simple.RData')
+    load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_95.RData"
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor5.RData"
     increment_level <- 0.04
-    ESG_threshold <- 95
+    ESG_threshold <- 65
+    cluster_now <- 6
   } else {
-    load('cluster_0_input_normalReturns_simple.RData')
+    load('cluster_0_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "simple_ESGRestricted_optimal_allocations_vfinal_35.RData"
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor6.RData"
     increment_level <- 0.04
-    ESG_threshold <- 35
+    ESG_threshold <- 65
+    cluster_now <- 7
   }
   
   if (hyperParm_tuning){
     optimal_hyperparameters <- get_optimal_allocation(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
                                                       ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000,increment_level)
   } else {
-    optimal_allocations <- get_optimal_allocation_v2(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(0)]],
-                                                  ESG_threshold,env_weight_list[1],soc_weight_list[1],gov_weight_list[1],30000,increment_level)
+    optimal_allocations <- get_optimal_allocation_v2(return_var_train_list,state_var_train_list,all_allocations,ESG_constraint,final_esg_score_list[[as.character(cluster_now-1)]],
+                                                  ESG_threshold,env_weight_list[cluster_now],soc_weight_list[cluster_now],gov_weight_list[cluster_now],30000,increment_level)
   }
   
   save(optimal_allocations,file=output_file_name)
