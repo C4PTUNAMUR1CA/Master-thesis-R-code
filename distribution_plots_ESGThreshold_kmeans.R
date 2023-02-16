@@ -13,10 +13,6 @@ library(hrbrthemes)
 
 #============== Section 1: load necessary functions ===============================
 
-ggplot(iris, aes(x = Sepal.Length, y = Species)) + geom_density_ridges()
-df <- iris
-
-
 get_terminal_wealth_perScenario <- function(opt_allocation,return_list,max_horizon){
   
   Nscenarios <- nrow(return_list[[1]])
