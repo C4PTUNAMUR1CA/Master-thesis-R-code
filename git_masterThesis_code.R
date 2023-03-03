@@ -1407,7 +1407,7 @@ get_optimal_allocation_v2 <- function(return_var_list,state_var_list,all_allocat
         max_finalUtility_rowIndex_buyHold <- which(final_expected_utility_buyHold==max(final_expected_utility_buyHold))
         #REPEAT HERE TO FIND OPTIMAL ALLOCATION AROUND THE OTHER OPTIMAL ALLOCATION
         
-        if (horizon==3){
+        if (horizon==13){
           print('after first step: ')
           print(all_allocations_BuyHold[max_finalUtility_rowIndex_buyHold,])
         }
@@ -1422,17 +1422,19 @@ get_optimal_allocation_v2 <- function(return_var_list,state_var_list,all_allocat
           all_allocations_BuyHold <- generate_next_allocation_grid_v2(all_allocations_BuyHold[max_finalUtility_rowIndex_buyHold,],incr_value,incr_value)
         }
         
-        if (horizon==3){
+        if (horizon==13){
           print('grid for step 2 but before ESG correction')
           print(nrow(all_allocations_BuyHold))
         }
+        
+        
         #in case the ESG constraint is active, get rid of the asset allocations from the grid which do not exceed the ESG threshold score
         if (ESG_constraint){
           all_allocations_BuyHold <- ESG_restrict_allocations(all_allocations_BuyHold,ESG_scores,ESG_threshold,
                                                               env_weight,soc_weight,gov_weight)
         }
         
-        if (horizon==3){
+        if (horizon==13){
           print('grid for step 2 but after ESG correction')
           print(nrow(all_allocations_BuyHold))
         }
@@ -1453,6 +1455,10 @@ get_optimal_allocation_v2 <- function(return_var_list,state_var_list,all_allocat
         max_finalUtility_rowIndex_buyHold <- which(final_expected_utility_buyHold==max(final_expected_utility_buyHold))
         final_optimal_allocation_buyHold <- all_allocations_BuyHold[max_finalUtility_rowIndex_buyHold,]
         row.names(final_optimal_allocation_buyHold) <- NULL
+        
+        if (horizon==13){
+          print(all_allocations_BuyHold[max_finalUtility_rowIndex_buyHold,])
+        }
         
         if (horizon==2){
           print(nrow(all_allocations_BuyHold))
@@ -1488,6 +1494,13 @@ get_optimal_allocation_v2 <- function(return_var_list,state_var_list,all_allocat
       #update the possible portfolio allocation grid, by adhering to
       #to the fact that stock allocation can decrease by at most 8% over time
       equity_allocation_prev_period <- sum(allocations_dynamic[period,4:ncol(allocations_dynamic)])
+      if (horizon==13){
+        if (period==3){
+          print('this is allocation at period 3, horizon 13:')
+          print(allocations_dynamic[period,])
+        }
+      }
+      
       if (round(1-equity_allocation_prev_period,2)<=round(2*incr_value,2)){
         all_allocations_dynamic <- generate_next_allocation_grid(allocations_dynamic[period,],incr_value,incr_value,
                                                                  equity_allocation_prev_period,T)
@@ -1497,6 +1510,13 @@ get_optimal_allocation_v2 <- function(return_var_list,state_var_list,all_allocat
         if (nrow(all_allocations_dynamic)==0){
           all_allocations_dynamic <- generate_next_allocation_grid(allocations_dynamic[period,],incr_value,incr_value,
                                                                    equity_allocation_prev_period,T)
+        }
+      }
+      
+      if (horizon==13){
+        if (period==3){
+          print('this is number of allocations in grid for period 2, horizon 13:')
+          print(nrow(allocations_dynamic))
         }
       }
       # if ((horizon==3)&(period==3)){
@@ -1511,6 +1531,12 @@ get_optimal_allocation_v2 <- function(return_var_list,state_var_list,all_allocat
                                                                    equity_allocation_prev_period,T)
           all_allocations_dynamic <- ESG_restrict_allocations(all_allocations_dynamic,ESG_scores,ESG_threshold,
                                                               env_weight,soc_weight,gov_weight)
+        }
+      }
+      if (horizon==13){
+        if (period==3){
+          print('this is number of allocations in grid for period 2, horizon 13 after ESG restriction:')
+          print(nrow(allocations_dynamic))
         }
       }
     }
@@ -1783,44 +1809,44 @@ for (i in 1:6){
   # }
   
   if (i==1){
-    load('cluster_0_input_normalReturns_kmeans.RData')
+    load('cluster_1_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor1.RData"
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor1_v3.RData"
     increment_level <- 0.04
     ESG_threshold <- 65
     cluster_now <- 2
   } else if (i==2){
-    load('cluster_0_input_normalReturns_kmeans.RData')
+    load('cluster_2_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor2.RData"
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor2_v3.RData"
     increment_level <- 0.04
     ESG_threshold <- 65
     cluster_now <- 3
   } else if (i==3){
-    load('cluster_0_input_normalReturns_kmeans.RData')
+    load('cluster_3_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor3.RData"
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor3_v3.RData"
     increment_level <- 0.04
     ESG_threshold <- 65
     cluster_now <- 4
   } else if (i==4){
-    load('cluster_0_input_normalReturns_kmeans.RData')
+    load('cluster_4_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor4.RData"
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor4_v3.RData"
     increment_level <- 0.04
     ESG_threshold <- 65
     cluster_now <- 5
   } else if (i==5){
-    load('cluster_0_input_normalReturns_kmeans.RData')
+    load('cluster_5_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor5.RData"
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor5_v3.RData"
     increment_level <- 0.04
     ESG_threshold <- 65
     cluster_now <- 6
   } else {
-    load('cluster_0_input_normalReturns_kmeans.RData')
+    load('cluster_6_input_normalReturns_kmeans.RData')
     ESG_constraint <- T
-    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor6.RData"
+    output_file_name <- "kmeans_ESGRestricted_optimal_allocations_vfinal_investor6_v3.RData"
     increment_level <- 0.04
     ESG_threshold <- 65
     cluster_now <- 7

@@ -14,13 +14,11 @@ assets <- c( "Tbill_return","Tnote_return","corBond_return",
              "cluster_return_4","cluster_return_5","cluster_return_6",
              "cluster_return_7","cluster_return_8")
 
-load("return_var_train_list_kmeans.RData")
+load("cluster_0_input_normalReturns_kmeans.RData")
 return_train_set_kmeans <- return_var_train_list
-load("return_var_test_list_kmeans.RData")
 return_test_set_kmeans <- return_var_test_list
-load("return_var_train_list_simple.RData")
+load("cluster_0_input_normalReturns_simple.RData")
 return_train_set_simple <- return_var_train_list
-load("return_var_test_list_simple.RData")
 return_test_set_simple <- return_var_test_list
 
 source("Utility Functions.R")

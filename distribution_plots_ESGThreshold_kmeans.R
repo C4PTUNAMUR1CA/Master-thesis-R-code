@@ -1,8 +1,8 @@
 #load packages
 #install.packages("fanplot")
 #install.packages("ggfan")
-install.packages("ggridges")
-install.packages("hrbrthemes")
+#install.packages("ggridges")
+#install.packages("hrbrthemes")
 library(ggplot2)
 library(magrittr)
 library(tidyr)
