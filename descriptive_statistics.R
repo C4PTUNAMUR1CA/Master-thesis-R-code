@@ -1,7 +1,7 @@
 ########################################################################### 
-##  Start date: 2021-03-11 ------------------------------------------------
-##  Author: NIKITA PAVLOV, ELINE LI, LUC HAAFKES, ELSEMIEKE GIJSSEL--------
-##  Subject: allocation optimisation, hyperparameter tuning and complexity script
+##  Start date: 2023-02-04 ------------------------------------------------
+##  Author: NIKITA PAVLOV--------
+##  Subject: descriptive statistics generation of training and test sets
 ###########################################################################
 
 #saved github commands for the terminal
